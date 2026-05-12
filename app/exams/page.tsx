@@ -1,8 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react';
 import AppLayout from '@/components/layout/AppLayout';
-import { RESULTS } from '@/lib/data';
-import { Plus, X } from 'lucide-react';
+import {RESULTS} from '@/lib/data';
+import {Plus,X} from 'lucide-react';
 
 const API_BASE = 'http://localhost:5000/api/v1';
 
@@ -26,7 +26,7 @@ interface ApiExam {
   status: string;
 }
 
-function mapApiExam(e: ApiExam): Exam {
+function mapApiExam(e:ApiExam):Exam{
   return {
     id: e._id,
     name: e.name,
@@ -38,7 +38,7 @@ function mapApiExam(e: ApiExam): Exam {
   };
 }
 
-export default function ExamsPage() {
+export default function ExamsPage(){
   const [exams, setExams] = useState<Exam[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,7 +55,7 @@ export default function ExamsPage() {
     status: 'upcoming',
   });
 
-  const gradeColor: Record<string, string>={
+  const gradeColor: Record<string,string>={
     'A+': 'success',
     A: 'success',
     B: 'info',
@@ -64,7 +64,7 @@ export default function ExamsPage() {
     F: 'danger',
   };
 
-  const fetchExams = async () => {
+  const fetchExams = async ()=>{
     setLoading(true);
     setError(null);
     try {
@@ -83,6 +83,7 @@ export default function ExamsPage() {
   useEffect(() => {
     fetchExams();
   }, []);
+
   const handleAdd = async () => {
     if (!form.name || !form.subject || !form.date) return;
     setSubmitting(true);
@@ -90,7 +91,7 @@ export default function ExamsPage() {
     try {
       const res = await fetch(`${API_BASE}/exams`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type' : 'application/json'},
         body: JSON.stringify({
           name: form.name,
           class: form.class,
@@ -168,7 +169,7 @@ export default function ExamsPage() {
           <span>⚠️ {error}</span>
           <button
             onClick={() => setError(null)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#b91c1c' }}
+            style={{ background:'none',border:'none',cursor:'pointer',color:'#b91c1c'}}
           >
             <X size={14} />
           </button>
@@ -177,20 +178,20 @@ export default function ExamsPage() {
       {tab === 'exams' && (
         <>
           <div className="toolbar">
-            <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 10}}>
               {['upcoming', 'completed'].map((s) => (
                 <span
                   key={s}
                   className={`badge badge-${s === 'upcoming' ? 'info' : 'success'}`}
-                  style={{ fontSize: 12, padding: '5px 12px' }}
+                  style={{ fontSize: 12, padding: '5px 12px'}}
                 >
                   {s}: {exams.filter((e) => e.status === s).length}
                 </span>
               ))}
             </div>
-            <div style={{ flex: 1 }} />
+            <div style={{ flex: 1 }}/>
             <button className="btn btn-primary" onClick={() => setModal(true)}>
-              <Plus size={16} /> Schedule Exam
+              <Plus size={16}/> Schedule Exam
             </button>
           </div>
           <div className="card">
@@ -370,7 +371,7 @@ export default function ExamsPage() {
                 Cancel
               </button>
               <button className="btn btn-primary" onClick={handleAdd} disabled={submitting}>
-                {submitting ? 'Scheduling…' : 'Schedule'}
+                {submitting ? 'Scheduling…':'Schedule'}
               </button>
             </div>
           </div>

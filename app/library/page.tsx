@@ -1,30 +1,29 @@
 'use client'
-import { useState, useEffect, ChangeEvent } from 'react'
-import AppLayout from '@/components/layout/AppLayout'
-import { Plus, Search, X, BookOpen, Loader2, AlertCircle, RefreshCw } from 'lucide-react'
-
-const API_BASE = 'http://localhost:5000/api/v1/library'
+import { useState, useEffect, ChangeEvent } from 'react';
+import AppLayout from '@/components/layout/AppLayout';
+import { Plus,Search,X,BookOpen,Loader2,AlertCircle,RefreshCw} from 'lucide-react';
+const API_BASE = 'http://localhost:5000/api/v1/library';
 
 interface BookApiResponse {
-  _id: string
-  title: string
-  author: string
-  category: string
-  totalCopies: number
-  available: number
-  isbn: string
-  createdAt: string
-  updatedAt: string
-  __v: number
+  _id:string
+  title:string
+  author:string
+  category:string
+  totalCopies:number
+  available:number
+  isbn:string
+  createdAt:string
+  updatedAt:string
+  __v:number
 }
 interface Book extends BookApiResponse {
   id: string
   total: number
 }
-interface ApiEnvelope<T> {
-  success: boolean
-  data: T
-  message?: string
+interface ApiEnvelope<T>{
+  success:boolean
+  data:T
+  message?:string
 }
 interface BookForm {
   title: string
@@ -39,31 +38,33 @@ const CATEGORIES: BookCategory[] = [
   'Textbook', 'Fiction', 'Non-Fiction', 'Reference', 'Autobiography', 'Science',
 ]
 
-const INITIAL_FORM: BookForm = {
-  title: '',
-  author: '',
-  category: 'Textbook',
-  available: 1,
-  totalCopies: 1,
-  isbn: '',
+const INITIAL_FORM:BookForm = {
+  title:'',
+  author:'',
+  category:'Textbook',
+  available:1,
+  totalCopies:1,
+  isbn:'',
 }
-function normaliseBook(raw: BookApiResponse): Book {
+
+function normaliseBook(raw:BookApiResponse):Book{
   return {
     ...raw,
     id: raw._id,
     total: raw.totalCopies ?? 1,
   }
 }
-export default function LibraryPage() {
-  const [books, setBooks] = useState<Book[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string | null>(null)
-  const [search, setSearch] = useState<string>('')
-  const [modal, setModal] = useState<boolean>(false)
-  const [submitting, setSubmitting] = useState<boolean>(false)
-  const [form, setForm] = useState<BookForm>(INITIAL_FORM)
 
-  const fetchBooks = async (): Promise<void> => {
+export default function LibraryPage(){
+  const [books,setBooks] = useState<Book[]>([])
+  const [loading,setLoading] = useState<boolean>(true)
+  const [error,setError] = useState<string | null>(null)
+  const [search,setSearch] = useState<string>('')
+  const [modal,setModal] = useState<boolean>(false)
+  const [submitting,setSubmitting] = useState<boolean>(false)
+  const [form,setForm] = useState<BookForm>(INITIAL_FORM)
+
+  const fetchBooks = async (): Promise<void>=>{
     setLoading(true)
     setError(null)
     try {
@@ -71,13 +72,12 @@ export default function LibraryPage() {
       const json: ApiEnvelope<BookApiResponse[]> = await res.json()
       if (!res.ok || !json.success) throw new Error(json.message ?? 'Failed to fetch books')
       setBooks((json.data ?? []).map(normaliseBook))
-    } catch (err) {
+    } catch (err){
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
     }
   }
-
   useEffect(() => {
     fetchBooks()
   }, [])
@@ -85,7 +85,7 @@ export default function LibraryPage() {
     if (!form.title.trim() || !form.author.trim()) return
     setSubmitting(true)
     try {
-      const payload: Omit<BookForm, 'id'> = {
+      const payload:Omit<BookForm,'id'>={
         title: form.title,
         author: form.author,
         category: form.category,
@@ -93,9 +93,9 @@ export default function LibraryPage() {
         available: form.available,
         isbn: form.isbn,
       }
-      const res = await fetch(API_BASE, {
+      const res = await fetch(API_BASE,{
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json'},
         body: JSON.stringify(payload),
       })
       const json: ApiEnvelope<BookApiResponse> = await res.json()
@@ -104,7 +104,7 @@ export default function LibraryPage() {
       setBooks(prev => [...prev, normaliseBook(json.data)])
       setModal(false)
       setForm(INITIAL_FORM)
-    } catch (err) {
+    } catch (err){
       alert(`Error: ${err instanceof Error ? err.message : 'Unknown error'}`)
     } finally {
       setSubmitting(false)
@@ -125,11 +125,12 @@ export default function LibraryPage() {
   }
 
   const stats: Stat[] = [
-    { label: 'Total Books', value: books.reduce((a, b) => a + b.total, 0),                       color: '#1e3a5f', bg: '#e0e7ff' },
-    { label: 'Available',   value: books.reduce((a, b) => a + b.available, 0),                   color: '#059669', bg: '#d1fae5' },
-    { label: 'Issued',      value: books.reduce((a, b) => a + (b.total - b.available), 0),       color: '#d97706', bg: '#fef3c7' },
-    { label: 'Titles',      value: books.length,                                                  color: '#7c3aed', bg: '#ede9fe' },
+    { label: 'Total Books', value: books.reduce((a, b) => a + b.total, 0),color: '#1e3a5f',bg:'#e0e7ff'},
+    { label: 'Available',   value: books.reduce((a, b) => a + b.available, 0),color:'#059669',bg:'#d1fae5'},
+    { label: 'Issued',      value: books.reduce((a, b) => a + (b.total - b.available), 0),color: '#d97706',bg:'#fef3c7'},
+    { label: 'Titles',      value: books.length,color: '#7c3aed',bg:'#ede9fe'},
   ]
+
   return (
     <AppLayout title="Library Management" subtitle="Manage books and library inventory">
       <div style={{ display: 'flex', gap: 14, marginBottom: 24 }}>

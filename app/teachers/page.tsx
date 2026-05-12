@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import {useState,useEffect,useCallback} from 'react'
 import AppLayout from '@/components/layout/AppLayout'
 import { COLORS } from '@/lib/data'
 import {Plus,Search,Edit,Trash2,X,Mail,Phone,Loader2} from 'lucide-react'
@@ -32,26 +32,25 @@ interface TeacherForm {
 }
 
 const initForm: TeacherForm = {
-  name: '', subject: '', classes: '', phone: '',
+  name:'',subject:'',classes: '',phone: '',
   email: '', qualification: '', experience: '', status: 'Active',
 }
 
-const toClassArray = (raw: string): string[] =>
-  raw.split(',').map(s => s.trim()).filter(Boolean)
+const toClassArray = (raw: string):string[] =>
+raw.split(',').map(s => s.trim()).filter(Boolean);
+const toClassString = (arr: string[]): string => arr.join(',');
 
-const toClassString = (arr: string[]): string => arr.join(',')
-
-export default function TeachersPage() {
+export default function TeachersPage(){
   const [teachers, setTeachers] = useState<Teacher[]>([])
-  const [search, setSearch] = useState('')
-  const [modal, setModal] = useState<'add' | 'edit' | null>(null)
+  const [search, setSearch]     = useState('')
+  const [modal, setModal]       = useState<'add' | 'edit' | null>(null)
   const [selected, setSelected] = useState<Teacher | null>(null)
-  const [form, setForm] = useState<TeacherForm>(initForm)
-  const [loading, setLoading] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [form, setForm]         = useState<TeacherForm>(initForm)
+  const [loading, setLoading]   = useState(false)
+  const [saving, setSaving]     = useState(false)
+  const [error, setError]       = useState<string | null>(null)
 
-  const fetchTeachers = useCallback(async () => {
+  const fetchTeachers = useCallback(async () =>{
     setLoading(true)
     setError(null)
     try {
@@ -64,19 +63,20 @@ export default function TeachersPage() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  },[])
 
   useEffect(() => { fetchTeachers() }, [fetchTeachers])
-  const filtered = teachers.filter(t =>
+  const filtered = teachers.filter(t=>
     t.name.toLowerCase().includes(search.toLowerCase()) ||
     t.subject.toLowerCase().includes(search.toLowerCase())
   )
-  const openAdd = () => {
+  
+  const openAdd = ()=>{
     setForm(initForm)
     setSelected(null)
     setModal('add')
   }
-  const openEdit = (t: Teacher) => {
+  const openEdit = (t:Teacher)=>{
     setSelected(t)
     setForm({
       name: t.name,
@@ -90,6 +90,7 @@ export default function TeachersPage() {
     })
     setModal('edit')
   }
+
   const handleSave = async () => {
     setSaving(true)
     setError(null)
@@ -146,10 +147,10 @@ export default function TeachersPage() {
     <AppLayout title="Teachers" subtitle="Manage teaching staff records">
       {error && (
         <div style={{
-          background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 8,
-          padding: '10px 16px', marginBottom: 16, color: '#dc2626',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          fontSize: 13,
+          background:'#fef2f2', border: '1px solid #fca5a5', borderRadius: 8,
+          padding:'10px 16px', marginBottom: 16, color: '#dc2626',
+          display:'flex', justifyContent: 'space-between', alignItems: 'center',
+          fontSize:13,
         }}>
           {error}
           <button onClick={() => setError(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626' }}>
@@ -240,7 +241,7 @@ export default function TeachersPage() {
             <div className="modal-header">
               <h3>{modal === 'add' ? '➕ Add Teacher' : '✏️ Edit Teacher'}</h3>
               <button className="btn btn-outline btn-sm btn-icon" onClick={() => setModal(null)}>
-                <X size={16} />
+                <X size={16}/>
               </button>
             </div>
             <div className="modal-body">
@@ -282,7 +283,7 @@ export default function TeachersPage() {
             <div className="modal-footer">
               <button className="btn btn-outline" onClick={() => setModal(null)} disabled={saving}>Cancel</button>
               <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                {saving ? <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> Saving…</> : modal === 'add' ? 'Add Teacher' : 'Save Changes'}
+                {saving ? <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }}/> Saving…</> : modal === 'add' ? 'Add Teacher' : 'Save Changes'}
               </button>
             </div>
           </div>
