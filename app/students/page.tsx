@@ -72,8 +72,8 @@ const initForm = {
   phone:'',
   category:'General',
   session:'2024-25',
-  feeStatus:'pending' as const,
-  status:'active' as const,
+  feeStatus:'pending' as 'paid' | 'pending' | 'overdue',
+  status:'active' as 'active' | 'inactive',
   address: {street:'',city:'',state:'',pincode:'' },
   guardian: {name: '',relation:'Father',phone:'',email:'',occupation:'',annualIncome:0},
 }
