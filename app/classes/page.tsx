@@ -56,7 +56,7 @@ interface ApiResponse<T>{
   data?:T
 }
 
-const API_BASE = 'http://localhost:5000/api/v1'
+const API_BASE = 'https://edumanagebackend-1.onrender.com/api/v1'
 
 const COLORS: string[] = [
   '#1e3a5f', '#7c3aed', '#0891b2',

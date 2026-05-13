@@ -2,7 +2,7 @@
 import { useState, useEffect, ChangeEvent } from 'react';
 import AppLayout from '@/components/layout/AppLayout';
 import { Plus,Search,X,BookOpen,Loader2,AlertCircle,RefreshCw} from 'lucide-react';
-const API_BASE = 'http://localhost:5000/api/v1/library';
+const API_BASE = 'https://edumanagebackend-1.onrender.com/api/v1/library';
 
 interface BookApiResponse {
   _id:string

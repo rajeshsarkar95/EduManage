@@ -69,7 +69,7 @@ interface Stat {
   bg: string
   icon: string
 }
-const API_URL = 'http://localhost:5000/api/v1/transport';
+const API_URL = 'https://edumanagebackend-1.onrender.com/api/v1/transport';
 
 const EMPTY_FORM: FormState = {
   routeName:'',routeNumber:'',busNumber:'',busCapacity:'',

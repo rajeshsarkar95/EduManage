@@ -119,7 +119,7 @@ export default function Dashboard() {
   const [error, setError]         = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/v1/dashboard')
+    fetch('https://edumanagebackend-1.onrender.com/api/v1/dashboard')
       .then<ApiResponse>(res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();

@@ -12,6 +12,7 @@ type Address = {
   state: string
   pincode: string
 }
+
 type Guardian = {
   name: string
   relation: string
@@ -43,7 +44,7 @@ type Student = {
   updatedAt: string
 }
 
-type ApiResponse = {
+type ApiResponse ={
   success: boolean
   count: number
   total: number
@@ -51,12 +52,14 @@ type ApiResponse = {
   pages: number
   data: Student[]
 }
+
 type ClassOption = {
   _id: string        
   name: string       
 }
-const BASE_URL = 'http://localhost:5000/api/v1/students';
-const CLASSES_URL = 'http://localhost:5000/api/v1/classes';
+const BASE_URL = 'https://edumanagebackend-1.onrender.com/api/v1/students';
+
+const CLASSES_URL = 'https://edumanagebackend-1.onrender.com/api/v1/classes';
 
 const SECTION_OPTIONS = ['A', 'B', 'C', 'D'];
 const CATEGORY_OPTIONS = ['General', 'OBC', 'SC', 'ST'];
@@ -74,7 +77,7 @@ const initForm = {
   session:'2024-25',
   feeStatus:'pending' as 'paid' | 'pending' | 'overdue',
   status:'active' as 'active' | 'inactive',
-  address: {street:'',city:'',state:'',pincode:'' },
+  address: {street:'',city:'',state:'',pincode:''},
   guardian: {name: '',relation:'Father',phone:'',email:'',occupation:'',annualIncome:0},
 }
 
@@ -110,7 +113,7 @@ const toPayload = (form: FormState) =>({
   },
 })
 
-const toForm = (s:Student): FormState => ({
+const toForm = (s:Student):FormState => ({
   name:s.name,
   rollNumber:s.rollNumber,
   class:s.class ?? '',
@@ -138,7 +141,7 @@ export default function StudentsPage(){
   const [modal, setModal] = useState<'add' | 'edit' | 'view' | null>(null);
   const [selected, setSelected] = useState<Student | null>(null);
   const [form, setForm] = useState<FormState>(initForm);
-  
+
   const fetchStudents = useCallback(async()=>{
     setLoading(true);
     setError(null);
@@ -155,7 +158,7 @@ export default function StudentsPage(){
         const list: ClassOption[] = Array.isArray(classJson) ? classJson : (classJson.data ?? []);
         setClasses(list);
       }
-    } catch (err: unknown){
+    } catch (err:unknown){
       setError(err instanceof Error ? err.message : 'Failed to fetch students')
     } finally {
       setLoading(false)
@@ -247,7 +250,7 @@ export default function StudentsPage(){
           { label: 'Fee Paid', value: students.filter(s => s.feeStatus === 'paid').length, color: '#7c3aed', bg: '#ede9fe' },
           { label: 'Fee Pending', value: students.filter(s => s.feeStatus === 'pending').length, color: '#d97706', bg: '#fef3c7' },
           { label: 'Overdue', value: students.filter(s => s.feeStatus === 'overdue').length, color: '#dc2626', bg: '#fee2e2' },
-        ].map((c, i) => (
+        ].map((c, i)=>(
           <div key={i} style={{ background: c.bg, borderRadius: 10, padding: '12px 20px', textAlign: 'center', minWidth: 90 }}>
             <div style={{ fontSize: 22, fontWeight: 800, color: c.color, fontFamily: 'Syne, sans-serif' }}>{c.value}</div>
             <div style={{ fontSize: 11.5, color: '#64748b' }}>{c.label}</div>
@@ -256,16 +259,16 @@ export default function StudentsPage(){
       </div>
       <div className="toolbar">
         <div className="search-bar">
-          <Search size={16} className="search-icon" />
-          <input placeholder="Search students…" value={search} onChange={e => setSearch(e.target.value)} />
+          <Search size={16} className="search-icon"/>
+          <input placeholder="Search students…" value={search} onChange={e => setSearch(e.target.value)}/>
         </div>
         <select className="form-control" style={{ width: 'auto' }} value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
           {['All', 'paid', 'pending', 'overdue'].map(v => <option key={v}>{v}</option>)}
         </select>
         <button className="btn btn-outline btn-sm" onClick={fetchStudents} title="Refresh" disabled={loading}>
-          <RefreshCw size={14} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
+          <RefreshCw size={14} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }}/>
         </button>
-        <button className="btn btn-primary" onClick={openAdd}><Plus size={16} />Add Student</button>
+        <button className="btn btn-primary" onClick={openAdd}><Plus size={16}/>Add Student</button>
       </div>
       {error && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 8, padding: '10px 16px', marginBottom: 16, color: '#dc2626', fontSize: 13 }}>
@@ -355,7 +358,7 @@ export default function StudentsPage(){
                 </div>
                 <div className="form-group">
                   <label className="form-label">Roll Number *</label>
-                  <input className="form-control" value={form.rollNumber} onChange={e => setField('rollNumber', e.target.value)} placeholder="e.g. R101" />
+                  <input className="form-control" value={form.rollNumber} onChange={e => setField('rollNumber', e.target.value)} placeholder="e.g. R101"/>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Class</label>
@@ -367,7 +370,7 @@ export default function StudentsPage(){
                     }
                   </select>
                   {classes.length === 0 && (
-                    <p style={{ fontSize: 11, color: '#f59e0b', marginTop: 4 }}>
+                    <p style={{ fontSize: 11, color:'#f59e0b',marginTop:4}}>
                       ⚠ Could not load classes from server — class will not be saved.
                     </p>
                   )}
@@ -380,7 +383,7 @@ export default function StudentsPage(){
                 </div>
                 <div className="form-group">
                   <label className="form-label">Date of Birth</label>
-                  <input className="form-control" type="date" value={form.dateOfBirth} onChange={e => setField('dateOfBirth', e.target.value)} />
+                  <input className="form-control" type="date" value={form.dateOfBirth} onChange={e => setField('dateOfBirth', e.target.value)}/>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Gender</label>
@@ -390,7 +393,7 @@ export default function StudentsPage(){
                 </div>
                 <div className="form-group">
                   <label className="form-label">Phone</label>
-                  <input className="form-control" value={form.phone} onChange={e => setField('phone', e.target.value)} placeholder="10-digit number" />
+                  <input className="form-control" value={form.phone} onChange={e => setField('phone', e.target.value)} placeholder="10-digit number"/>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Category</label>
@@ -404,24 +407,27 @@ export default function StudentsPage(){
                     {SESSION_OPTIONS.map(s => <option key={s}>{s}</option>)}
                   </select>
                 </div>
+
                 <div className="form-group">
                   <label className="form-label">Fee Status</label>
                   <select className="form-control" value={form.feeStatus} onChange={e => setField('feeStatus', e.target.value)}>
                     <option value="paid">Paid</option><option value="pending">Pending</option><option value="overdue">Overdue</option>
                   </select>
                 </div>
+
                 <div className="form-group">
                   <label className="form-label">Status</label>
                   <select className="form-control" value={form.status} onChange={e => setField('status', e.target.value)}>
                     <option value="active">Active</option><option value="inactive">Inactive</option>
                   </select>
                 </div>
+
               </div>
               <p style={{ fontWeight: 700, fontSize: 12, color: '#64748b', textTransform: 'uppercase', letterSpacing: 1, margin: '16px 0 10px' }}>Address</p>
               <div className="grid-2">
                 <div className="form-group">
                   <label className="form-label">Street</label>
-                  <input className="form-control" value={form.address.street} onChange={e => setAddress('street', e.target.value)} placeholder="Street / Mohalla" />
+                  <input className="form-control" value={form.address.street} onChange={e => setAddress('street', e.target.value)} placeholder="Street / Mohalla"/>
                 </div>
                 <div className="form-group">
                   <label className="form-label">City</label>

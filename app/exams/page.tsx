@@ -4,7 +4,7 @@ import AppLayout from '@/components/layout/AppLayout';
 import {RESULTS} from '@/lib/data';
 import {Plus,X} from 'lucide-react';
 
-const API_BASE = 'http://localhost:5000/api/v1';
+const API_BASE = 'https://edumanagebackend-1.onrender.com/api/v1';
 
 interface Exam {
   id: string;
