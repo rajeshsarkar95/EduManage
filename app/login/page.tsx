@@ -16,9 +16,8 @@ const handleLogin = async (e:React.FormEvent)=>{
   e.preventDefault();
   setLoading(true);
   setError('');
-  
   try {
-    const res = await fetch('http://localhost:5000/api/v1/auth/login', {
+    const res = await fetch('https://edumanagebackend-1.onrender.com/api/v1/auth/login',{
       method:'POST',
       headers:{
         'Content-Type':'application/json',
@@ -47,7 +46,6 @@ const handleLogin = async (e:React.FormEvent)=>{
     setLoading(false);
   }
 };
-
   return (
     <div className="login-page">
       <div className="login-card">
@@ -77,43 +75,43 @@ const handleLogin = async (e:React.FormEvent)=>{
                 type="email"
                 placeholder={role === 'admin' ? 'admin@school.edu' : 'teacher@school.edu'}
                 value={form.email}
-                onChange={e => setForm({ ...form, email: e.target.value })}
-                style={{ paddingLeft: 38 }}
+                onChange={e => setForm({...form,email:e.target.value})}
+                style={{paddingLeft:38}}
                 required
               />
             </div>
           </div>
           <div className="form-group">
             <label className="form-label">Password</label>
-            <div style={{ position: 'relative' }}>
+            <div style={{ position:'relative'}}>
               <Lock size={16} style={{
-                position: 'absolute',
-                left: 12,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: '#94a3b8'
-              }} />
+                position:'absolute',
+                left:12,
+                top:'50%',
+                transform:'translateY(-50%)',
+                color:'#94a3b8'
+              }}/>
               <input
                 className="form-control"
                 type={showPass ? 'text' : 'password'}
                 placeholder="••••••••"
                 value={form.password}
-                onChange={e => setForm({ ...form, password: e.target.value })}
-                style={{ paddingLeft: 38, paddingRight: 38 }}
+                onChange={e => setForm({...form,password:e.target.value })}
+                style={{paddingLeft:38,paddingRight:38}}
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPass(!showPass)}
                 style={{
-                  position: 'absolute',
-                  right: 12,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: '#94a3b8'
+                  position:'absolute',
+                  right:12,
+                  top:'50%',
+                  transform:'translateY(-50%)',
+                  background:'none',
+                  border:'none',
+                  cursor:'pointer',
+                  color:'#94a3b8'
                 }}
               >
                 {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -121,10 +119,10 @@ const handleLogin = async (e:React.FormEvent)=>{
             </div>
           </div>
           <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 20
+            display:'flex',
+            justifyContent:'space-between',
+            alignItems:'center',
+            marginBottom:20
           }}>
             <label style={{
               display: 'flex',
@@ -134,13 +132,13 @@ const handleLogin = async (e:React.FormEvent)=>{
               color: '#64748b',
               cursor: 'pointer'
             }}>
-              <input type="checkbox" />
+              <input type="checkbox"/>
               <span> Remember me</span>
             </label>
-            <a href="#" style={{
-              fontSize: 13,
-              color: '#1e3a5f',
-              fontWeight: 600
+            <a href="#"style={{
+              fontSize:13,
+              color:'#1e3a5f',
+              fontWeight:600
             }}>
               Forgot password?
             </a>
