@@ -4,7 +4,7 @@ import AppLayout from '@/components/layout/AppLayout'
 import { Save } from 'lucide-react'
 
 export default function SettingsPage() {
-  const [school, setSchool] = useState({ name: 'Delhi Public School', address: 'New Delhi, India', phone: '011-12345678', email: 'info@dps.edu', principal: 'Dr. Anand Kumar', established: '1990', board: 'CBSE' })
+  const [school, setSchool] = useState({ name:'AR Public school ka',address:'Amaria District  Pilibhit', phone: '9210101806', email: 'arpublicschool1088@gmail.com', principal:'Azhar',established:'2008',board:'CBSE'})
   const [sms, setSms] = useState({ provider: 'fast2sms', apiKey: '', senderId: 'SCHOOL', enabled: true })
   const [saved, setSaved] = useState(false)
 
@@ -13,8 +13,7 @@ export default function SettingsPage() {
   return (
     <AppLayout title="Settings" subtitle="Configure school and system settings">
       <div style={{ maxWidth: 700 }}>
-
-        <div className="card" style={{ marginBottom: 20 }}>
+        <div className="card" style={{marginBottom:20}}>
           <div className="card-header"><h3>🏫 School Information</h3></div>
           <div className="card-body">
             <div className="grid-2">
@@ -40,7 +39,7 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="card" style={{ marginBottom: 20 }}>
+        <div className="card" style={{ marginBottom:20}}>
           <div className="card-header"><h3>📱 SMS Configuration</h3></div>
           <div className="card-body">
             <div className="form-group">

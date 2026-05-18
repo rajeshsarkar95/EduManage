@@ -4,23 +4,22 @@ import AppLayout from '@/components/layout/AppLayout';
 import Link from 'next/link';
 
 interface Exam {
-  _id: string;
-  name: string;
-  class: string;
-  subject: string;
-  examDate: string;
-  totalMarks: number;
+  _id:string;
+  name:string;
+  class:string;
+  subject:string;
+  examDate:string;
+  totalMarks:number;
   status: 'upcoming' | 'completed' | 'cancelled';
   createdAt: string;
   updatedAt: string;
   __v: number;
 }
-
 interface DashboardData {
-  students: {
-    total: number;
-    presentToday: number;
-    absentToday: number;
+  students:{
+    total:number;
+    presentToday:number;
+    absentToday:number;
   };
   teachers: {
     total: number;
@@ -28,34 +27,29 @@ interface DashboardData {
   classes: {
     total: number;
   };
-  fees: {
+  fees:{
     totalAmount: number;
     paidAmount: number;
     pendingCount: number;
     collectionPct: number;
   };
-  notices: {
-    total: number;
+  notices:{
+    total:number;
   };
-  sms: {
+  sms:{
     sentToday: number;
   };
   upcomingExams: Exam[];
 }
 
-interface ApiResponse {
-  success: boolean;
-  data: DashboardData;
-}
-
 interface StatCard {
-  label: string;
-  value: string | number;
-  icon: string;
-  color: string;
-  bg: string;
-  change: string;
-  up: boolean;
+  label:string;
+  value:string | number;
+  icon:string;
+  color:string;
+  bg:string;
+  change:string;
+  up:boolean;
 }
 
 interface ActivityItem {
@@ -64,7 +58,6 @@ interface ActivityItem {
   time: string;
   color: string;
 }
-
 interface QuickAction {
   href: string;
   label: string;
@@ -72,7 +65,6 @@ interface QuickAction {
   color: string;
   bg: string;
 }
-
 interface FeeSummaryItem {
   label: string;
   value: string;
@@ -81,63 +73,94 @@ interface FeeSummaryItem {
 }
 
 const RECENT_ACTIVITY: ActivityItem[] = [
-  { icon: '🔴', text: 'Priya Patel marked ABSENT – SMS sent to parent',    time: '8:46 AM',  color: '#fee2e2' },
-  { icon: '🔴', text: 'Kabir Khan marked ABSENT – SMS alert failed',        time: '8:47 AM',  color: '#fee2e2' },
-  { icon: '📢', text: 'New notice: Annual Sports Day published',             time: '9:00 AM',  color: '#e0f2fe' },
-  { icon: '💰', text: 'Fee received: Arjun Singh – ₹10,000',                time: '10:15 AM', color: '#d1fae5' },
-  { icon: '📱', text: 'Bulk SMS sent to Class 10 parents (PTM reminder)',    time: '10:30 AM', color: '#e0f2fe' },
-  { icon: '✏️', text: 'Exam schedule added: Unit Test 1 – Class 10-A Math', time: '11:00 AM', color: '#ede9fe' },
+  { icon: '🔴', text: 'Priya Patel marked ABSENT – SMS sent to parent',time: '8:46 AM',color:'#fee2e2'},
+  { icon: '🔴', text: 'Kabir Khan marked ABSENT – SMS alert failed',time: '8:47 AM',color:'#fee2e2'},
+  { icon: '📢', text: 'New notice: Annual Sports Day published',time: '9:00 AM',color: '#e0f2fe'},
+  { icon: '💰', text: 'Fee received: Arjun Singh – ₹10,000',time: '10:15 AM', color: '#d1fae5'},
+  { icon: '📱', text: 'Bulk SMS sent to Class 10 parents (PTM reminder)', time: '10:30 AM', color: '#e0f2fe'},
+  { icon: '✏️', text: 'Exam schedule added: Unit Test 1 – Class 10-A Math', time: '11:00 AM', color: '#ede9fe'},
 ];
 
 const QUICK_ACTIONS: QuickAction[] = [
-  { href: '/attendance', label: 'Mark Attendance', icon: '✅', color: '#059669', bg: '#d1fae5' },
-  { href: '/sms',        label: 'Send SMS',        icon: '📱', color: '#0284c7', bg: '#e0f2fe' },
-  { href: '/students',   label: 'Add Student',     icon: '➕', color: '#7c3aed', bg: '#ede9fe' },
-  { href: '/notices',    label: 'Post Notice',     icon: '📢', color: '#db2777', bg: '#fce7f3' },
-  { href: '/fees',       label: 'Collect Fee',     icon: '💰', color: '#d97706', bg: '#fef3c7' },
-  { href: '/exams',      label: 'Add Exam',        icon: '📝', color: '#1e3a5f', bg: '#e0e7ff' },
+  { href: '/attendance', label: 'Mark Attendance', icon: '✅', color: '#059669', bg: '#d1fae5'},
+  { href: '/sms',        label: 'Send SMS',        icon: '📱', color: '#0284c7', bg: '#e0f2fe'},
+  { href: '/students',   label: 'Add Student',     icon: '➕', color: '#7c3aed', bg: '#ede9fe'},
+  { href: '/notices',    label: 'Post Notice',     icon: '📢', color: '#db2777', bg: '#fce7f3'},
+  { href: '/fees',       label: 'Collect Fee',     icon: '💰', color: '#d97706', bg: '#fef3c7'},
+  { href: '/exams',      label: 'Add Exam',        icon: '📝', color: '#1e3a5f', bg: '#e0e7ff'},
 ];
 
-function formatINR(amount: number): string {
+function formatINR(amount:number):string{
   if (amount >= 100_000) return `₹${(amount / 100_000).toFixed(1)}L`;
   if (amount >= 1_000)   return `₹${(amount / 1_000).toFixed(1)}K`;
   return `₹${amount}`;
 }
 
-function deduplicateExams(exams: Exam[]): Exam[] {
-  const seen = new Map<string, Exam>();
-  for (const exam of exams) {
+function deduplicateExams(exams: Exam[]):Exam[]{
+  const seen = new Map<string,Exam>();
+  for (const exam of exams){
     const key = `${exam.name}-${exam.class}-${exam.subject}-${exam.examDate}`;
-    if (!seen.has(key)) seen.set(key, exam);
+    if (!seen.has(key)) seen.set(key,exam);
   }
   return Array.from(seen.values());
 }
 
-export default function Dashboard() {
-  const [dashData, setDashData]   = useState<DashboardData | null>(null);
-  const [loading, setLoading]     = useState<boolean>(true);
-  const [error, setError]         = useState<string | null>(null);
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('token') || sessionStorage.getItem('token') || null;
+}
 
-  useEffect(() => {
-    fetch('https://edumanagebackend-1.onrender.com/api/v1/dashboard')
-      .then<ApiResponse>(res => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
-      .then(json => {
-        if (json.success) setDashData(json.data);
-        else setError('Server returned an unsuccessful response.');
-      })
-      .catch((err: Error) => setError(`Could not reach the server: ${err.message}`))
-      .finally(() => setLoading(false));
-  }, []);
+export default function Dashboard(){
+  const [dashData, setDashData] = useState<DashboardData | null>(null);
+  const [loading, setLoading]   = useState<boolean>(true);
+  const [error, setError]       = useState<string | null>(null);
 
-  const students      = dashData?.students    ?? { total: 0, presentToday: 0, absentToday: 0 };
-  const teachers      = dashData?.teachers    ?? { total: 0 };
-  const classes       = dashData?.classes     ?? { total: 0 };
-  const fees          = dashData?.fees        ?? { totalAmount: 0, paidAmount: 0, pendingCount: 0, collectionPct: 0 };
-  const notices       = dashData?.notices     ?? { total: 0 };
-  const sms           = dashData?.sms         ?? { sentToday: 0 };
+  useEffect(()=>{
+    const fetchDashboard = async ()=>{
+      try {
+        setLoading(true);
+        const token = getToken();
+        if (!token){
+          window.location.href = '/login';
+          return;
+        }
+        const response = await fetch(
+          'https://edumanagebackend-1.onrender.com/api/v1/dashboard',
+          {
+            method: 'GET',
+            headers: {Authorization:`Bearer ${token}`},
+          }
+        );
+        const json = await response.json();
+        if (response.status === 401){
+          localStorage.removeItem('token');
+          sessionStorage.removeItem('token');
+          localStorage.removeItem('user');
+          sessionStorage.removeItem('user');
+          // window.location.href = '/login';
+          return;
+        }
+        if (!response.ok){
+          throw new Error(json.message || 'Failed to fetch dashboard data');
+        }
+        if (json.success){
+          setDashData(json.data);
+        }
+      } catch (err:any){
+        setError(err.message || 'Something went wrong');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboard();
+  },[]);
+
+  const students      = dashData?.students      ?? { total: 0, presentToday: 0, absentToday: 0};
+  const teachers      = dashData?.teachers      ?? { total: 0 };
+  const classes       = dashData?.classes       ?? { total: 0 };
+  const fees          = dashData?.fees          ?? { totalAmount: 0, paidAmount: 0, pendingCount: 0, collectionPct: 0 };
+  const notices       = dashData?.notices       ?? { total: 0 };
+  const sms           = dashData?.sms           ?? { sentToday: 0 };
   const upcomingExams = dashData?.upcomingExams ?? [];
 
   const pendingFees   = fees.totalAmount - fees.paidAmount;
@@ -145,43 +168,43 @@ export default function Dashboard() {
     ? ((students.presentToday / students.total) * 100).toFixed(1)
     : '0.0';
   const absentPct = students.total > 0
-    ? ((students.absentToday  / students.total) * 100).toFixed(1)
+    ? ((students.absentToday / students.total) * 100).toFixed(1)
     : '0.0';
 
   const stats: StatCard[] = [
-    { label: 'Total Students', value: students.total,      icon: '🎓', color: '#1e3a5f', bg: '#e0e7ff', change: 'Enrolled',                   up: true  },
-    { label: 'Teachers',       value: teachers.total,      icon: '👩‍🏫', color: '#7c3aed', bg: '#ede9fe', change: 'On staff',                    up: true  },
-    { label: 'Classes',        value: classes.total,       icon: '📚', color: '#0891b2', bg: '#e0f2fe', change: 'All active',                   up: true  },
-    { label: 'Present Today',  value: students.presentToday, icon: '✅', color: '#059669', bg: '#d1fae5', change: `${attendancePct}% attendance`, up: true  },
-    { label: 'Absent Today',   value: students.absentToday,  icon: '❌', color: '#dc2626', bg: '#fee2e2', change: `${absentPct}% absent`,         up: false },
-    { label: 'Fee Pending',    value: formatINR(pendingFees), icon: '💰', color: '#d97706', bg: '#fef3c7', change: `${fees.pendingCount} students`, up: false },
-    { label: 'Notices',        value: notices.total,        icon: '📢', color: '#db2777', bg: '#fce7f3', change: 'Published',                   up: false },
-    { label: 'SMS Sent Today', value: sms.sentToday,        icon: '📱', color: '#0284c7', bg: '#e0f2fe', change: 'Alerts sent',                  up: true  },
+    { label: 'Total Students',value: students.total,icon: '🎓', color: '#1e3a5f', bg: '#e0e7ff', change: 'Enrolled',                    up: true  },
+    { label: 'Teachers',       value: teachers.total,icon:'👩‍🏫', color: '#7c3aed', bg: '#ede9fe', change: 'On staff',                     up: true },
+    { label: 'Classes',        value: classes.total,icon: '📚', color: '#0891b2', bg: '#e0f2fe', change: 'All active',                    up: true },
+    { label: 'Present Today',  value: students.presentToday,   icon: '✅', color: '#059669', bg: '#d1fae5', change: `${attendancePct}% attendance`,  up: true  },
+    { label: 'Absent Today',   value: students.absentToday,    icon: '❌', color: '#dc2626', bg: '#fee2e2', change: `${absentPct}% absent`,           up: false },
+    { label: 'Fee Pending',    value: formatINR(pendingFees),  icon: '💰', color: '#d97706', bg: '#fef3c7', change: `${fees.pendingCount} students`,  up: false },
+    { label: 'Notices',        value: notices.total,            icon: '📢', color: '#db2777', bg: '#fce7f3', change: 'Published',                     up: false },
+    { label: 'SMS Sent Today', value: sms.sentToday,           icon: '📱', color: '#0284c7', bg: '#e0f2fe', change: 'Alerts sent',                   up: true  },
   ];
 
   const feeSummary: FeeSummaryItem[] = [
-    { label: 'Total Collected', value: formatINR(fees.paidAmount),  color: '#059669', bg: '#d1fae5' },
-    { label: 'Pending',         value: formatINR(pendingFees),       color: '#d97706', bg: '#fef3c7' },
-    { label: 'Overdue',         value: '₹0',                         color: '#dc2626', bg: '#fee2e2' },
-    { label: 'Collection Rate', value: `${fees.collectionPct}%`,     color: '#1e3a5f', bg: '#e0e7ff' },
+    { label: 'Total Collected', value: formatINR(fees.paidAmount), color: '#059669', bg: '#d1fae5' },
+    { label: 'Pending',         value: formatINR(pendingFees),     color: '#d97706', bg: '#fef3c7' },
+    { label: 'Overdue',         value: '₹0',                       color: '#dc2626', bg: '#fee2e2' },
+    { label: 'Collection Rate', value: `${fees.collectionPct}%`,   color: '#1e3a5f', bg: '#e0e7ff' },
   ];
 
   return (
     <AppLayout title="Dashboard" subtitle={`Welcome back! Today is ${new Date().toDateString()}`}>
       {error && (
         <div style={{ background: '#fee2e2', color: '#dc2626', padding: '10px 16px', borderRadius: 8, marginBottom: 16, fontSize: 13, fontWeight: 600 }}>
-          ⚠️ {error} — showing default / cached data.
+          ⚠️ {error}
         </div>
       )}
       {loading ? (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 20 }}>
-          {Array.from({ length: 8 }).map((_, i) => (
+          {Array.from({ length: 8 }).map((_, i)=>(
             <div key={i} className="stat-card" style={{ background: '#f1f5f9', minHeight: 90, opacity: 0.6 }} />
           ))}
         </div>
       ) : (
         <div className="stats-grid">
-          {stats.map((s, i) => (
+          {stats.map((s, i) =>(
             <div key={i} className="stat-card fade-in" style={{ animationDelay: `${i * 0.05}s` }}>
               <div className="stat-icon" style={{ background: s.bg }}>
                 <span style={{ fontSize: 22 }}>{s.icon}</span>
@@ -197,7 +220,7 @@ export default function Dashboard() {
           ))}
         </div>
       )}
-      <div className="grid-2" style={{ gap: 20 }}>
+      <div className="grid-2" style={{gap:20}}>
         <div className="card">
           <div className="card-header">
             <h3>📋 Recent Activity</h3>
@@ -217,16 +240,20 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           <div className="card">
             <div className="card-header"><h3>⚡ Quick Actions</h3></div>
             <div className="card-body">
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 {QUICK_ACTIONS.map((a) => (
-                  <Link key={a.href} href={a.href}
+                  <Link
+                    key={a.href}
+                    href={a.href}
                     style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, background: a.bg, textDecoration: 'none', transition: 'all 0.2s' }}
                     onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.transform = 'scale(1.02)'; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.transform = 'scale(1)'; }}>
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.transform = 'scale(1)'; }}
+                  >
                     <span style={{ fontSize: 20 }}>{a.icon}</span>
                     <span style={{ fontSize: 12.5, fontWeight: 600, color: a.color }}>{a.label}</span>
                   </Link>
@@ -234,6 +261,7 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+
           <div className="card">
             <div className="card-header">
               <h3>📝 Upcoming Exams</h3>
@@ -264,6 +292,7 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
       <div style={{ marginTop: 20 }} className="card">
         <div className="card-header">
           <h3>💰 Fee Collection Overview</h3>
