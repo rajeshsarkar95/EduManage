@@ -1,24 +1,23 @@
 'use client';
-
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Eye, EyeOff, Lock, Mail, AlertCircle, Shield, BookOpen } from 'lucide-react';
+import {Eye,EyeOff,Lock,Mail,AlertCircle,Shield,BookOpen} from 'lucide-react';
 
-export default function LoginPage() {
+export default function LoginPage(){
   const router = useRouter();
   const [role, setRole] = useState<'admin' | 'teacher'>('admin');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [remember, setRemember] = useState(false);
-  const [form, setForm] = useState({ email:'',password:''});
-
-  const handleLogin = async () => {
-    if (!form.email.trim()) {
+  const [form, setForm] = useState({email:'',password:''});
+  
+  const handleLogin = async ()=>{
+    if (!form.email.trim()){
       setError('Please enter your email address.');
       return;
     }
-    if (!form.password) {
+    if (!form.password){
       setError('Please enter your password.');
       return;
     }
@@ -38,22 +37,20 @@ export default function LoginPage() {
         }
       );
       const data = await response.json();
-      if (!response.ok) {
+      if (!response.ok){
         throw new Error(data.message || 'Login failed. Please check your credentials.');
       }
-      if (!data?.token) {
+      if (!data?.token){
         throw new Error('No token received. Please try again.');
       }
-
       const storage = remember ? localStorage : sessionStorage;
-      storage.setItem('token', data.token);
-      if (data?.user) {
+      storage.setItem('token',data.token);
+      if (data?.user){
         storage.setItem('user', JSON.stringify(data.user));
       }
-
       router.push('/dashboard');
-    } catch (err: any) {
-      if (err.name === 'TypeError') {
+    } catch (err:any){
+      if (err.name === 'TypeError'){
         setError('Cannot reach the server. Check your internet connection.');
       } else {
         setError(err.message || 'Something went wrong. Please try again.');
@@ -63,57 +60,49 @@ export default function LoginPage() {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e:React.KeyboardEvent)=>{
     if (e.key === 'Enter') handleLogin();
   };
 
   return (
     <div style={styles.wrap}>
       <div style={styles.card}>
-
-        {/* Logo */}
         <div style={styles.logoRow}>
           <div style={styles.logoIcon}>🏫</div>
           <h1 style={styles.appTitle}>EduManage</h1>
           <p style={styles.appSub}>School Management System</p>
         </div>
-
-        {/* Role Toggle */}
         <div style={styles.roleRow}>
-          {(['admin', 'teacher'] as const).map((r) => (
+          {(['admin', 'teacher'] as const).map((r)=>(
             <button
               key={r}
               type="button"
               onClick={() => setRole(r)}
               style={{
                 ...styles.roleBtn,
-                ...(role === r ? styles.roleBtnActive : {}),
+                ...(role === r ? styles.roleBtnActive :{}),
               }}
             >
-              {r === 'admin' ? <Shield size={14} /> : <BookOpen size={14} />}
+              {r === 'admin' ? <Shield size={14} /> : <BookOpen size={14}/>}
               {r === 'admin' ? 'Admin' : 'Teacher'}
             </button>
           ))}
         </div>
-
-        {/* Error */}
         {error && (
           <div style={styles.errorBox} role="alert">
-            <AlertCircle size={15} style={{ flexShrink: 0 }} />
+            <AlertCircle size={15} style={{flexShrink:0}}/>
             <span style={{ fontSize: 13 }}>{error}</span>
           </div>
         )}
-
-        {/* Email */}
         <div style={styles.field}>
           <label style={styles.label}>Email Address</label>
-          <div style={{ position: 'relative' }}>
-            <Mail size={15} style={styles.inputIcon} />
+          <div style={{ position:'relative'}}>
+            <Mail size={15} style={styles.inputIcon}/>
             <input
               type="email"
               placeholder={role === 'admin' ? 'admin@school.edu' : 'teacher@school.edu'}
               value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              onChange={(e) => setForm({ ...form, email: e.target.value})}
               onKeyDown={handleKeyDown}
               style={styles.input}
               autoComplete="email"
@@ -121,17 +110,15 @@ export default function LoginPage() {
             />
           </div>
         </div>
-
-        {/* Password */}
         <div style={styles.field}>
           <label style={styles.label}>Password</label>
-          <div style={{ position: 'relative' }}>
-            <Lock size={15} style={styles.inputIcon} />
+          <div style={{position:'relative'}}>
+            <Lock size={15} style={styles.inputIcon}/>
             <input
               type={showPass ? 'text' : 'password'}
               placeholder="••••••••"
               value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              onChange={(e) => setForm({...form, password: e.target.value })}
               onKeyDown={handleKeyDown}
               style={{ ...styles.input, paddingRight: 40 }}
               autoComplete="current-password"
@@ -147,8 +134,6 @@ export default function LoginPage() {
             </button>
           </div>
         </div>
-
-        {/* Remember + Forgot */}
         <div style={styles.extras}>
           <label style={styles.rememberLabel}>
             <input
@@ -161,8 +146,6 @@ export default function LoginPage() {
           </label>
           <a href="#" style={styles.forgot}>Forgot password?</a>
         </div>
-
-        {/* Submit */}
         <button
           type="button"
           onClick={handleLogin}
@@ -188,7 +171,6 @@ export default function LoginPage() {
     </div>
   );
 }
-
 const styles: Record<string, React.CSSProperties> = {
   wrap: {
     minHeight: '100vh',
