@@ -46,9 +46,9 @@ export default function LoginPage(){
       const storage = remember ? localStorage : sessionStorage;
       storage.setItem('token',data.token);
       if (data?.user){
-        storage.setItem('user', JSON.stringify(data.user));
+        storage.setItem('user',JSON.stringify(data.user));
       }
-      // router.push('/dashboard');
+      router.push('/dashboard');
     } catch (err:any){
       if (err.name === 'TypeError'){
         setError('Cannot reach the server. Check your internet connection.');
