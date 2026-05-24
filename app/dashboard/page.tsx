@@ -121,7 +121,7 @@ export default function Dashboard(){
         setLoading(true);
         const token = getToken();
         if (!token){
-          window.location.href = '/login';
+          // window.location.href = '/login';
           return;
         }
         const response = await fetch(

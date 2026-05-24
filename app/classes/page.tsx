@@ -2,7 +2,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import AppLayout from '@/components/layout/AppLayout';
 import { Plus,X,Users,BookOpen,RefreshCw,AlertCircle,Loader2} from 'lucide-react';
-
 type RawSubject = string | {_id:string;name?:string}
 
 interface RawClass {

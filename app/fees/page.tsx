@@ -1,37 +1,37 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
-import AppLayout from '@/components/layout/AppLayout'
-import { Search, CheckCircle, X, Plus, Pencil, Trash2, AlertTriangle, Loader2 } from 'lucide-react'
+import {useState,useEffect,useCallback} from 'react';
+import AppLayout from '@/components/layout/AppLayout';
+import {Search,CheckCircle,X,Plus,Pencil,Trash2,AlertTriangle,Loader2} from 'lucide-react';
 
-const BASE   = 'http://localhost:5000/api/v1'
+const BASE   = 'https://edumanagebackend-1.onrender.com/api/v1'
 
 const FEES_API     = `${BASE}/fees`
 const STUDENTS_API = `${BASE}/students`
-const CLASSES_API  = `${BASE}/classes`        
+const CLASSES_API  = `${BASE}/classes`       
 
 type FeeStatus = 'paid' | 'pending' | 'overdue';
 type ModalMode = 'add' | 'edit' | 'delete' | null;
 
 interface Student {
-  _id: string
-  name: string
-  rollNumber?: string
-  className?: string | { name: string }
+  _id:string
+  name:string
+  rollNumber?:string
+  className?:string | {name:string}
 }
 
-interface Class {
-  _id: string
-  name: string
-  section?: string
+interface Class{
+  _id:string
+  name:string
+  section?:string
 }
 
 interface FeeRecord {
   id: string
   _id: string
-  student: string | {_id:string;name:string}
-  class:   string | {_id:string;name:string}
-  session: string
-  feeType: string
+  student:string | {_id:string;name:string}
+  class:string | {_id:string;name:string}
+  session:string
+  feeType:string
   totalAmount:number
   paidAmount:number
   discountAmount:number
@@ -54,30 +54,30 @@ interface FeeForm {
   dueDate:        string
 }
 
-const STATUS_COLOR: Record<FeeStatus,string>={
-  paid:    'success',
-  pending: 'warning',
-  overdue: 'danger',
+const STATUS_COLOR:Record<FeeStatus,string>={
+  paid:'success',
+  pending:'warning',
+  overdue:'danger',
 }
 
-const EMPTY_FORM: FeeForm = {
-  student:        '',
-  class:          '',
-  session:        new Date().getFullYear().toString(),
-  feeType:        'tuition',
-  totalAmount:    '',
-  paidAmount:     '0',
-  discountAmount: '0',
-  fineAmount:     '0',
-  dueDate:        '',
+const EMPTY_FORM:FeeForm ={
+  student:'',
+  class:'',
+  session:new Date().getFullYear().toString(),
+  feeType:'tuition',
+  totalAmount:'',
+  paidAmount:'0',
+  discountAmount:'0',
+  fineAmount:'0',
+  dueDate:'',
 }
 
-const FEE_TYPES = ['tuition', 'exam', 'transport','hostel','library','sports', 'other']
+const FEE_TYPES = ['tuition','exam','transport','hostel','library','sports','other']
 function studentName(f: FeeRecord): string {
   if (typeof f.student === 'object' && f.student !== null) return f.student.name ?? ''
   return (f.student as string) ?? ''
 }
-function className(f: FeeRecord): string {
+function className(f: FeeRecord):string {
   if (typeof f.class === 'object' && f.class !== null) return f.class.name ?? ''
   return (f.class as string) ?? ''
 }
@@ -89,7 +89,7 @@ function classId(f: FeeRecord): string {
   if (typeof f.class === 'object' && f.class !== null) return f.class._id ?? ''
   return (f.class as string) ?? ''
 }
-function recordToForm(f: FeeRecord): FeeForm {
+function recordToForm(f:FeeRecord):FeeForm {
   return {
     student:        studentId(f),
     class:          classId(f),
@@ -104,37 +104,37 @@ function recordToForm(f: FeeRecord): FeeForm {
 }
 
 async function apiFetch<T>(url:string,options?:RequestInit):Promise<T>{
-  const res  = await fetch(url, options)
+  const res  = await fetch(url,options)
   const json = await res.json()
   if (!res.ok) throw new Error(json.message || `Request failed: ${res.status}`)
   return json
 }
 
 const labelStyle: React.CSSProperties = {
-  display: 'block', fontSize: 12.5, fontWeight: 600,
-  color: '#374151', marginBottom: 5,
+  display: 'block',fontSize:12.5,fontWeight:600,
+  color: '#374151',marginBottom:5,
 }
 const dialogStyle: React.CSSProperties = {
   position: 'fixed', top: '50%', left:'50%',
   transform: 'translate(-50%,-50%)',
   background: '#fff', borderRadius: 18,
-  padding: '28px 28px 24px', width: '100%', maxWidth: 520,
-  boxShadow: '0 32px 72px rgba(0,0,0,0.2)', zIndex: 1001,
-  maxHeight: '90vh', overflowY: 'auto',
+  padding: '28px 28px 24px', width: '100%',maxWidth:520,
+  boxShadow: '0 32px 72px rgba(0,0,0,0.2)',zIndex:1001,
+  maxHeight: '90vh', overflowY:'auto',
 }
 
 interface ModalHeaderProps {
-  icon: string; title: string; subtitle: string
-  onClose: () => void; accentBg?: string
+  icon:string;title:string;subtitle:string
+  onClose:()=> void;accentBg?:string
 }
-function ModalHeader({icon,title,subtitle,onClose,accentBg = '#e0e7ff'}: ModalHeaderProps) {
+function ModalHeader({icon,title,subtitle,onClose,accentBg = '#e0e7ff'}: ModalHeaderProps){
   return (
     <>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
+      <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:20}}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom:4}}>
-            <div style={{ background: accentBg, borderRadius: 8, padding: '6px 8px', fontSize: 18, lineHeight: 1 }}>{icon}</div>
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1e3a5f', margin: 0 }}>{title}</h2>
+          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4}}>
+            <div style={{background:accentBg,borderRadius:8,padding:'6px 8px',fontSize:18,lineHeight:1}}>{icon}</div>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1e3a5f', margin:0 }}>{title}</h2>
           </div>
           <p style={{ fontSize: 12.5, color: '#64748b', margin: 0, paddingLeft: 2 }}>{subtitle}</p>
         </div>
@@ -146,19 +146,19 @@ function ModalHeader({icon,title,subtitle,onClose,accentBg = '#e0e7ff'}: ModalHe
     </>
   )
 }
-
 interface ModalFooterProps {
   onCancel: () => void; onConfirm: () => void
   confirmLabel: string; confirmIcon: React.ReactNode
   confirmColor: string; loading?: boolean
 }
-function ModalFooter({ onCancel, onConfirm, confirmLabel, confirmIcon, confirmColor, loading }: ModalFooterProps) {
+
+function ModalFooter({onCancel,onConfirm,confirmLabel,confirmIcon,confirmColor,loading}:ModalFooterProps){
   return (
-    <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
-      <button className="btn btn-outline" style={{ flex: 1 }} onClick={onCancel} disabled={loading}>Cancel</button>
+    <div style={{display:'flex',gap:10,marginTop:20}}>
+      <button className="btn btn-outline" style={{flex:1}} onClick={onCancel} disabled={loading}>Cancel</button>
       <button
         onClick={onConfirm} disabled={loading}
-        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '9px 16px', borderRadius: 8, border: 'none', background: confirmColor, color: '#fff', fontWeight: 700, fontSize: 13.5, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}
+        style={{ flex: 1,display:'flex',alignItems:'center', justifyContent: 'center', gap: 6, padding: '9px 16px', borderRadius: 8, border: 'none', background: confirmColor, color: '#fff', fontWeight: 700, fontSize: 13.5, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}
       >
         {loading ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : confirmIcon}
         {loading ? 'Please wait…' : confirmLabel}
@@ -171,29 +171,29 @@ export default function FeesPage() {
   const [fees, setFees]         = useState<FeeRecord[]>([])
   const [students, setStudents] = useState<Student[]>([])
   const [classes, setClasses]   = useState<Class[]>([])
-  const [loading, setLoading]           = useState(true)
+  const [loading, setLoading]   = useState(true)
   const [dropdownLoading, setDropdownLoading] = useState(false)
-  const [apiError, setApiError]         = useState('')
-  const [search, setSearch]             = useState('')
-  const [filter, setFilter]             = useState('All')
-  const [modalMode, setModalMode]       = useState<ModalMode>(null)
-  const [selected, setSelected]         = useState<FeeRecord | null>(null)
-  const [form, setForm]                 = useState<FeeForm>(EMPTY_FORM)
-  const [formError, setFormError]       = useState('')
-  const [submitting, setSubmitting]     = useState(false)
+  const [apiError, setApiError] = useState('')
+  const [search, setSearch]     = useState('')
+  const [filter, setFilter]     = useState('All')
+  const [modalMode, setModalMode] = useState<ModalMode>(null)
+  const [selected, setSelected]   = useState<FeeRecord | null>(null)
+  const [form, setForm]           = useState<FeeForm>(EMPTY_FORM)
+  const [formError, setFormError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
 
   const fetchFees = useCallback(async () => {
     setLoading(true)
     setApiError('')
     try {
-      const json = await apiFetch<{ data: FeeRecord[] | { docs?: FeeRecord[]; fees?: FeeRecord[] } }>(FEES_API)
+      const json = await apiFetch<{ data: FeeRecord[] | { docs?: FeeRecord[];fees?:FeeRecord[] } }>(FEES_API)
       const raw: FeeRecord[] = Array.isArray(json.data)
         ? json.data
         : ((json.data as { docs?: FeeRecord[]; fees?: FeeRecord[] })?.docs
           ?? (json.data as { docs?: FeeRecord[]; fees?: FeeRecord[] })?.fees
           ?? [])
-      setFees(raw.map((f) => ({ ...f, id: f._id ?? f.id })))
+      setFees(raw.map((f) => ({ ...f, id: f._id ?? f.id})))
     } catch (err: unknown) {
       setApiError(err instanceof Error ? err.message : 'Failed to load fee records.')
     } finally {

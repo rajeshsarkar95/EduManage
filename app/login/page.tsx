@@ -59,11 +59,9 @@ export default function LoginPage(){
       setLoading(false);
     }
   };
-
   const handleKeyDown = (e:React.KeyboardEvent)=>{
     if (e.key === 'Enter') handleLogin();
   };
-
   return (
     <div style={styles.wrap}>
       <div style={styles.card}>
