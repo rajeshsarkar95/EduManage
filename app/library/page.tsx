@@ -1,29 +1,30 @@
 'use client'
 import { useState, useEffect, ChangeEvent } from 'react';
 import AppLayout from '@/components/layout/AppLayout';
-import { Plus,Search,X,BookOpen,Loader2,AlertCircle,RefreshCw} from 'lucide-react';
+import { Plus, Search, X, BookOpen, Loader2, AlertCircle, RefreshCw, Pencil, Trash2 } from 'lucide-react';
+
 const API_BASE = 'https://edumanagebackend-1.onrender.com/api/v1/library';
 
 interface BookApiResponse {
-  _id:string
-  title:string
-  author:string
-  category:string
-  totalCopies:number
-  available:number
-  isbn:string
-  createdAt:string
-  updatedAt:string
-  __v:number
+  _id: string
+  title: string
+  author: string
+  category: string
+  totalCopies: number
+  available: number
+  isbn: string
+  createdAt: string
+  updatedAt: string
+  __v: number
 }
 interface Book extends BookApiResponse {
   id: string
   total: number
 }
-interface ApiEnvelope<T>{
-  success:boolean
-  data:T
-  message?:string
+interface ApiEnvelope<T> {
+  success: boolean
+  data: T
+  message?: string
 }
 interface BookForm {
   title: string
@@ -33,21 +34,21 @@ interface BookForm {
   totalCopies: number
   isbn: string
 }
+
+type ModalMode = 'add' | 'edit'
 type BookCategory = 'Textbook' | 'Fiction' | 'Non-Fiction' | 'Reference' | 'Autobiography' | 'Science'
 const CATEGORIES: BookCategory[] = [
   'Textbook', 'Fiction', 'Non-Fiction', 'Reference', 'Autobiography', 'Science',
 ]
-
-const INITIAL_FORM:BookForm = {
-  title:'',
-  author:'',
-  category:'Textbook',
-  available:1,
-  totalCopies:1,
-  isbn:'',
+const INITIAL_FORM: BookForm = {
+  title: '',
+  author: '',
+  category: 'Textbook',
+  available: 1,
+  totalCopies: 1,
+  isbn: '',
 }
-
-function normaliseBook(raw:BookApiResponse):Book{
+function normaliseBook(raw: BookApiResponse): Book {
   return {
     ...raw,
     id: raw._id,
@@ -55,16 +56,19 @@ function normaliseBook(raw:BookApiResponse):Book{
   }
 }
 
-export default function LibraryPage(){
-  const [books,setBooks] = useState<Book[]>([])
-  const [loading,setLoading] = useState<boolean>(true)
-  const [error,setError] = useState<string | null>(null)
-  const [search,setSearch] = useState<string>('')
-  const [modal,setModal] = useState<boolean>(false)
-  const [submitting,setSubmitting] = useState<boolean>(false)
-  const [form,setForm] = useState<BookForm>(INITIAL_FORM)
-
-  const fetchBooks = async (): Promise<void>=>{
+export default function LibraryPage() {
+  const [books, setBooks] = useState<Book[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
+  const [search, setSearch] = useState<string>('')
+  const [modal, setModal] = useState<boolean>(false)
+  const [modalMode, setModalMode] = useState<ModalMode>('add')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState<boolean>(false)
+  const [form, setForm] = useState<BookForm>(INITIAL_FORM)
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState<boolean>(false)
+  const fetchBooks = async (): Promise<void> => {
     setLoading(true)
     setError(null)
     try {
@@ -72,65 +76,106 @@ export default function LibraryPage(){
       const json: ApiEnvelope<BookApiResponse[]> = await res.json()
       if (!res.ok || !json.success) throw new Error(json.message ?? 'Failed to fetch books')
       setBooks((json.data ?? []).map(normaliseBook))
-    } catch (err){
+    } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
     }
   }
-  useEffect(() => {
-    fetchBooks()
-  }, [])
+  useEffect(() => { fetchBooks() }, [])
+  const openAddModal = () => {
+    setForm(INITIAL_FORM)
+    setModalMode('add')
+    setEditingId(null)
+    setModal(true)
+  }
+  const openEditModal = (book: Book) => {
+    setForm({
+      title: book.title,
+      author: book.author,
+      category: book.category,
+      available: book.available,
+      totalCopies: book.totalCopies,
+      isbn: book.isbn,
+    })
+    setModalMode('edit')
+    setEditingId(book.id)
+    setModal(true)
+  }
+  const closeModal = () => {
+    setModal(false)
+    setForm(INITIAL_FORM)
+    setEditingId(null)
+  }
   const handleAdd = async (): Promise<void> => {
     if (!form.title.trim() || !form.author.trim()) return
     setSubmitting(true)
     try {
-      const payload:Omit<BookForm,'id'>={
-        title: form.title,
-        author: form.author,
-        category: form.category,
-        totalCopies: form.totalCopies,
-        available: form.available,
-        isbn: form.isbn,
-      }
-      const res = await fetch(API_BASE,{
+      const res = await fetch(API_BASE, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json'},
-        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
       })
       const json: ApiEnvelope<BookApiResponse> = await res.json()
       if (!res.ok || !json.success) throw new Error(json.message ?? 'Failed to add book')
-
       setBooks(prev => [...prev, normaliseBook(json.data)])
-      setModal(false)
-      setForm(INITIAL_FORM)
-    } catch (err){
+      closeModal()
+    } catch (err) {
       alert(`Error: ${err instanceof Error ? err.message : 'Unknown error'}`)
     } finally {
       setSubmitting(false)
     }
   }
-
+  const handleUpdate = async (): Promise<void> => {
+    if (!form.title.trim() || !form.author.trim() || !editingId) return
+    setSubmitting(true)
+    try {
+      const res = await fetch(`${API_BASE}/${editingId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      const json: ApiEnvelope<BookApiResponse> = await res.json()
+      if (!res.ok || !json.success) throw new Error(json.message ?? 'Failed to update book')
+      setBooks(prev =>
+        prev.map(b => b.id === editingId ? normaliseBook(json.data) : b)
+      )
+      closeModal()
+    } catch (err) {
+      alert(`Error: ${err instanceof Error ? err.message : 'Unknown error'}`)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+  const handleDelete = async (id: string): Promise<void> => {
+    setDeleting(true)
+    try {
+      const res = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' })
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}))
+        throw new Error((json as ApiEnvelope<null>).message ?? 'Failed to delete book')
+      }
+      setBooks(prev => prev.filter(b => b.id !== id))
+      setDeleteConfirm(null)
+    } catch (err) {
+      alert(`Error: ${err instanceof Error ? err.message : 'Unknown error'}`)
+    } finally {
+      setDeleting(false)
+    }
+  }
   const filtered: Book[] = books.filter(
     b =>
       b.title?.toLowerCase().includes(search.toLowerCase()) ||
       b.author?.toLowerCase().includes(search.toLowerCase())
   )
-
-  interface Stat {
-    label: string
-    value: number
-    color: string
-    bg: string
-  }
-
+  interface Stat { label: string; value: number; color: string; bg: string }
   const stats: Stat[] = [
-    { label: 'Total Books', value: books.reduce((a, b) => a + b.total, 0),color: '#1e3a5f',bg:'#e0e7ff'},
-    { label: 'Available',   value: books.reduce((a, b) => a + b.available, 0),color:'#059669',bg:'#d1fae5'},
-    { label: 'Issued',      value: books.reduce((a, b) => a + (b.total - b.available), 0),color: '#d97706',bg:'#fef3c7'},
-    { label: 'Titles',      value: books.length,color: '#7c3aed',bg:'#ede9fe'},
+    { label: 'Total Books', value: books.reduce((a, b) => a + b.total, 0), color: '#1e3a5f', bg: '#e0e7ff' },
+    { label: 'Available',   value: books.reduce((a, b) => a + b.available, 0), color: '#059669', bg: '#d1fae5' },
+    { label: 'Issued',      value: books.reduce((a, b) => a + (b.total - b.available), 0), color: '#d97706', bg: '#fef3c7' },
+    { label: 'Titles',      value: books.length, color: '#7c3aed', bg: '#ede9fe' },
   ]
-
+  const bookToDelete = deleteConfirm ? books.find(b => b.id === deleteConfirm) : null
   return (
     <AppLayout title="Library Management" subtitle="Manage books and library inventory">
       <div style={{ display: 'flex', gap: 14, marginBottom: 24 }}>
@@ -160,7 +205,7 @@ export default function LibraryPage(){
         >
           <RefreshCw size={15} />
         </button>
-        <button className="btn btn-primary" onClick={() => setModal(true)}>
+        <button className="btn btn-primary" onClick={openAddModal}>
           <Plus size={16} /> Add Book
         </button>
       </div>
@@ -191,18 +236,19 @@ export default function LibraryPage(){
                 <div style={{ padding: 18 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
                     <BookOpen size={20} color="#1e3a5f" />
-                    <span
-                      className={`badge badge-${b.available === 0 ? 'danger' : b.available < 3 ? 'warning' : 'success'}`}
-                      style={{ fontSize: 11 }}
-                    >
-                      {b.available === 0 ? 'All Issued' : `${b.available} Available`}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span
+                        className={`badge badge-${b.available === 0 ? 'danger' : b.available < 3 ? 'warning' : 'success'}`}
+                        style={{ fontSize: 11 }}
+                      >
+                        {b.available === 0 ? 'All Issued' : `${b.available} Available`}
+                      </span>
+                    </div>
                   </div>
                   <h4 style={{ fontSize: 14, marginBottom: 4, lineHeight: 1.4 }}>{b.title}</h4>
                   <p style={{ fontSize: 12.5, color: '#64748b', marginBottom: 4 }}>by {b.author}</p>
                   <p style={{ fontSize: 11.5, color: '#94a3b8', marginBottom: 12 }}>ISBN: {b.isbn}</p>
                   <span className="badge badge-purple" style={{ fontSize: 11, marginBottom: 12 }}>{b.category}</span>
-
                   <div style={{ marginTop: 10 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5, color: '#64748b', marginBottom: 5 }}>
                       <span>Issued: {b.total - b.available}/{b.total}</span>
@@ -215,6 +261,26 @@ export default function LibraryPage(){
                       />
                     </div>
                   </div>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 14, borderTop: '1px solid #f1f5f9', paddingTop: 12 }}>
+                    <button
+                      className="btn btn-outline btn-sm"
+                      style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, fontSize: 12 }}
+                      onClick={() => openEditModal(b)}
+                    >
+                      <Pencil size={13} /> Edit
+                    </button>
+                    <button
+                      className="btn btn-sm"
+                      style={{
+                        flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+                        fontSize: 12, background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca',
+                        borderRadius: 6, cursor: 'pointer', padding: '6px 10px',
+                      }}
+                      onClick={() => setDeleteConfirm(b.id)}
+                    >
+                      <Trash2 size={13} /> Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             )
@@ -224,18 +290,17 @@ export default function LibraryPage(){
       {modal && (
         <div
           className="modal-overlay"
-          onClick={(e: React.MouseEvent<HTMLDivElement>) => e.target === e.currentTarget && setModal(false)}
+          onClick={(e: React.MouseEvent<HTMLDivElement>) => e.target === e.currentTarget && closeModal()}
         >
           <div className="modal">
             <div className="modal-header">
-              <h3>📚 Add New Book</h3>
-              <button className="btn btn-outline btn-sm btn-icon" onClick={() => setModal(false)}>
+              <h3>{modalMode === 'add' ? '📚 Add New Book' : '✏️ Edit Book'}</h3>
+              <button className="btn btn-outline btn-sm btn-icon" onClick={closeModal}>
                 <X size={16} />
               </button>
             </div>
             <div className="modal-body">
               <div className="grid-2">
-
                 <div className="form-group" style={{ gridColumn: '1/-1' }}>
                   <label className="form-label">Book Title</label>
                   <input
@@ -264,7 +329,6 @@ export default function LibraryPage(){
                     {CATEGORIES.map(c => <option key={c}>{c}</option>)}
                   </select>
                 </div>
-
                 <div className="form-group">
                   <label className="form-label">Total Copies</label>
                   <input
@@ -302,17 +366,84 @@ export default function LibraryPage(){
               </div>
             </div>
             <div className="modal-footer">
-              <button className="btn btn-outline" onClick={() => setModal(false)} disabled={submitting}>
+              <button className="btn btn-outline" onClick={closeModal} disabled={submitting}>
                 Cancel
               </button>
               <button
                 className="btn btn-primary"
-                onClick={handleAdd}
+                onClick={modalMode === 'add' ? handleAdd : handleUpdate}
                 disabled={submitting || !form.title.trim() || !form.author.trim()}
               >
                 {submitting
-                  ? <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> Adding…</>
-                  : 'Add Book'
+                  ? <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> {modalMode === 'add' ? 'Adding…' : 'Saving…'}</>
+                  : modalMode === 'add' ? 'Add Book' : 'Save Changes'
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {deleteConfirm && bookToDelete && (
+        <div
+          className="modal-overlay"
+          onClick={(e: React.MouseEvent<HTMLDivElement>) => e.target === e.currentTarget && !deleting && setDeleteConfirm(null)}
+        >
+          <div className="modal" style={{ maxWidth: 420 }}>
+            <div className="modal-header">
+              <h3>🗑️ Delete Book</h3>
+              <button
+                className="btn btn-outline btn-sm btn-icon"
+                onClick={() => setDeleteConfirm(null)}
+                disabled={deleting}
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="modal-body">
+              <div style={{
+                background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8,
+                padding: '14px 16px', marginBottom: 16,
+              }}>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                  <AlertCircle size={18} color="#ef4444" style={{ flexShrink: 0, marginTop: 2 }} />
+                  <div>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: '#dc2626', marginBottom: 4 }}>
+                      This action cannot be undone.
+                    </p>
+                    <p style={{ fontSize: 12.5, color: '#64748b' }}>
+                      You are about to permanently delete:
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div style={{
+                background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8,
+                padding: '12px 16px',
+              }}>
+                <p style={{ fontSize: 14, fontWeight: 600, color: '#1e293b', marginBottom: 4 }}>
+                  {bookToDelete.title}
+                </p>
+                <p style={{ fontSize: 12.5, color: '#64748b', marginBottom: 2 }}>by {bookToDelete.author}</p>
+                <p style={{ fontSize: 12, color: '#94a3b8' }}>ISBN: {bookToDelete.isbn} · {bookToDelete.category}</p>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button
+                className="btn btn-outline"
+                onClick={() => setDeleteConfirm(null)}
+                disabled={deleting}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn"
+                style={{ background: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}
+                onClick={() => handleDelete(deleteConfirm)}
+                disabled={deleting}
+              >
+                {deleting
+                  ? <><Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> Deleting…</>
+                  : <><Trash2 size={14} /> Delete Book</>
                 }
               </button>
             </div>

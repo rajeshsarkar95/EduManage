@@ -7,24 +7,24 @@ import {Plus,Search,Edit,Trash2,X,Mail,Phone,Loader2,User,BookOpen,MapPin,Shield
 const API_BASE = 'https://edumanagebackend-1.onrender.com/api/v1'
 
 interface Teacher {
-  _id: string
-  name: string
-  fatherName: string
-  motherName: string
-  dob: string
-  caste: string
-  religion: string
-  address: string
-  aadharNumber: string
-  subject: string
-  classes: string[]
-  phone: string
-  email: string
-  qualification: string
-  experience: string
-  status: string
-  createdAt?: string
-  updatedAt?: string
+  _id:string
+  name:string
+  fatherName:string
+  motherName:string
+  dob:string
+  caste:string
+  religion:string
+  address:string
+  aadharNumber:string
+  subject:string
+  classes:string[]
+  phone:string
+  email:string
+  qualification:string
+  experience:string
+  status:string
+  createdAt?:string
+  updatedAt?:string
 }
 
 interface TeacherForm {
@@ -44,7 +44,6 @@ interface TeacherForm {
   experience: string
   status: string
 }
-
 const initForm: TeacherForm = {
   name: '',
   fatherName: '',
@@ -63,10 +62,10 @@ const initForm: TeacherForm = {
   status: 'Active',
 }
 
-const toClassArray = (raw: string): string[] =>
+const toClassArray = (raw: string):string []=> 
   raw.split(',').map(s => s.trim()).filter(Boolean)
-const toClassString = (arr: string[]): string => arr.join(', ')
-const formatDobForInput = (dob: string): string => {
+const toClassString = (arr: string[]): string => arr.join(',')
+const formatDobForInput = (dob: string): string =>{
   if (!dob) return ''
   try {
     return new Date(dob).toISOString().split('T')[0]
@@ -76,25 +75,25 @@ const formatDobForInput = (dob: string): string => {
 }
 
 const PERSONAL_FIELDS = [
-  { label: 'Full Name', key: 'name', type: 'text', placeholder: 'Teacher full name', required: true },
-  { label: 'Father\'s Name', key: 'fatherName', type: 'text', placeholder: 'Father\'s full name' },
-  { label: 'Mother\'s Name', key: 'motherName', type: 'text', placeholder: 'Mother\'s full name' },
-  { label: 'Date of Birth', key: 'dob', type: 'date', placeholder: '' },
-  { label: 'Caste', key: 'caste', type: 'text', placeholder: 'e.g. General, OBC, SC, ST' },
-  { label: 'Religion', key: 'religion', type: 'text', placeholder: 'e.g. Hindu, Muslim, Christian' },
-  { label: 'Aadhaar Number', key: 'aadharNumber', type: 'text', placeholder: '12-digit Aadhaar number' },
+  { label: 'Full Name', key: 'name', type: 'text', placeholder: 'Teacher full name', required:true},
+  { label: 'Father\'s Name', key: 'fatherName', type: 'text', placeholder: 'Father\'s full name'},
+  { label: 'Mother\'s Name', key: 'motherName', type: 'text', placeholder: 'Mother\'s full name'},
+  { label: 'Date of Birth', key: 'dob', type: 'date', placeholder: ''},
+  { label: 'Caste', key: 'caste', type: 'text', placeholder: 'e.g. General, OBC, SC, ST'},
+  { label: 'Religion', key: 'religion', type: 'text', placeholder: 'e.g. Hindu, Muslim, Christian'},
+  { label: 'Aadhaar Number', key: 'aadharNumber', type: 'text', placeholder: '12-digit Aadhaar number'},
 ]
 
 const CONTACT_FIELDS = [
-  { label: 'Phone', key: 'phone', type: 'text', placeholder: '10-digit number' },
-  { label: 'Email', key: 'email', type: 'email', placeholder: 'teacher@school.edu' },
+  { label: 'Phone', key: 'phone', type: 'text', placeholder: '10-digit number'},
+  { label: 'Email', key: 'email', type: 'email', placeholder: 'teacher@school.edu'},
 ]
 
-const ACADEMIC_FIELDS =[
-  { label: 'Subject', key: 'subject', type: 'text', placeholder: 'e.g. Mathematics', required: true },
-  { label: 'Classes', key: 'classes', type: 'text', placeholder: 'e.g. 9A, 10B (comma-separated)' },
-  { label: 'Qualification', key: 'qualification', type: 'text', placeholder: 'e.g. M.Sc. Math' },
-  { label: 'Experience', key: 'experience', type: 'text', placeholder: 'e.g. 5 years' },
+const ACADEMIC_FIELDS = [
+  {label:'Subject',key:'subject',type:'text',placeholder:'e.g. Mathematics', required: true},
+  {label:'Classes',key:'classes',type:'text',placeholder:'e.g. 9A, 10B (comma-separated)' },
+  {label:'Qualification',key:'qualification',type: 'text',placeholder: 'e.g. M.Sc. Math' },
+  {label:'Experience', key:'experience',type:'text', placeholder: 'e.g. 5 years' },
 ]
 
 export default function TeachersPage(){
@@ -105,9 +104,9 @@ export default function TeachersPage(){
   const [form, setForm] = useState<TeacherForm>(initForm)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'personal' | 'contact' | 'academic'>('personal')
-
+  const [error,setError] = useState<string | null>(null)
+  const [activeTab,setActiveTab] = useState<'personal' | 'contact' | 'academic'>('personal')
+  
   const fetchTeachers = useCallback(async ()=>{
     setLoading(true)
     setError(null)
@@ -118,13 +117,13 @@ export default function TeachersPage(){
       setTeachers(Array.isArray(json) ? json : json.data ?? [])
     } catch (err:any){
       setError(err.message || 'Failed to load teachers')
-    } finally {
+    } finally{
       setLoading(false)
     }
-  }, [])
+  },[])
 
-  useEffect(() => { fetchTeachers() }, [fetchTeachers])
-  const filtered = teachers.filter(t =>
+  useEffect(() => {fetchTeachers()},[fetchTeachers])
+  const filtered = teachers.filter(t=>
     t.name.toLowerCase().includes(search.toLowerCase()) ||
     t.subject.toLowerCase().includes(search.toLowerCase())
   )
@@ -136,7 +135,7 @@ export default function TeachersPage(){
     setModal('add')
   }
 
-  const openEdit = (t: Teacher) => {
+  const openEdit = (t:Teacher)=>{
     setSelected(t)
     setForm({
       name: t.name ?? '',
@@ -158,7 +157,6 @@ export default function TeachersPage(){
     setActiveTab('personal')
     setModal('edit')
   }
-
   const handleSave = async () => {
     setSaving(true)
     setError(null)
@@ -181,23 +179,23 @@ export default function TeachersPage(){
     }
 
     try {
-      let res: Response
+      let res:Response
       if (modal === 'add') {
         res = await fetch(`${API_BASE}/teachers`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json'},
           body: JSON.stringify(payload),
         })
       } else {
-        res = await fetch(`${API_BASE}/teachers/${selected!._id}`, {
+        res = await fetch(`${API_BASE}/teachers/${selected!._id}`,{
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json'},
           body: JSON.stringify(payload),
         })
       }
 
       if (!res.ok) {
-        const errJson = await res.json().catch(() => ({}))
+        const errJson = await res.json().catch(() =>({}))
         throw new Error(errJson.message || `Server error: ${res.status}`)
       }
       await fetchTeachers()
@@ -208,7 +206,6 @@ export default function TeachersPage(){
       setSaving(false)
     }
   }
-
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this teacher?')) return
     try {
@@ -219,10 +216,8 @@ export default function TeachersPage(){
       setError(err.message || 'Failed to delete teacher')
     }
   }
-
   const f = (key: string) => (form as any)[key]
-  const setF = (key: string, val: string) => setForm(prev => ({ ...prev, [key]: val }))
-
+  const setF = (key: string, val: string) => setForm(prev => ({ ...prev, [key]: val }));
   const renderFields = (fields: typeof PERSONAL_FIELDS) =>
     fields.map(field => (
       <div key={field.key} className="form-group">
@@ -240,7 +235,7 @@ export default function TeachersPage(){
       </div>
     ))
 
-  const tabStyle = (tab: string) => ({
+  const tabStyle = (tab:string) => ({
     padding: '8px 16px',
     borderRadius: 8,
     border: 'none',
@@ -270,7 +265,7 @@ export default function TeachersPage(){
           </button>
         </div>
       )}
-      <div style={{ display: 'flex', gap: 14, marginBottom: 24 }}>
+      <div style={{ display: 'flex', gap: 14, marginBottom:24}}>
         {[
           { label: 'Total', value: teachers.length, color: '#1e3a5f', bg: '#e0e7ff' },
           { label: 'Active', value: teachers.filter(t => t.status?.toLowerCase() === 'active').length, color: '#059669', bg: '#d1fae5' },
@@ -382,11 +377,11 @@ export default function TeachersPage(){
             </div>
             <div className="modal-body">
               {error && (
-                <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 6, padding: '8px 12px', marginBottom: 12, color: '#dc2626', fontSize: 13 }}>
+                <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 6, padding: '8px 12px', marginBottom: 12, color: '#dc2626',fontSize:13}}>
                   {error}
                 </div>
               )}
-              {activeTab === 'personal' && (
+              {activeTab === 'personal' &&(
                 <div className="grid-2">
                   {renderFields(PERSONAL_FIELDS)}
                   <div className="form-group" style={{ gridColumn: '1 / -1' }}>
@@ -433,7 +428,7 @@ export default function TeachersPage(){
               )}
             </div>
             <div className="modal-footer">
-              <div style={{ display: 'flex', gap: 8, marginRight: 'auto' }}>
+              <div style={{display:'flex',gap:8,marginRight: 'auto'}}>
                 {activeTab !== 'personal' && (
                   <button
                     className="btn btn-outline btn-sm"
