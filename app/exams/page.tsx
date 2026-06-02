@@ -6,6 +6,14 @@ import { Plus, X, Pencil, Trash2, AlertTriangle } from 'lucide-react';
 
 const API_BASE = 'https://edumanagebackend-1.onrender.com/api/v1';
 
+const CLASS_GROUPS = [
+  { label: 'Pre-Primary',              classes: ['NC', 'LKG', 'UKG'] },
+  { label: 'Primary (1–5)',            classes: ['1-A','1-B','2-A','2-B','3-A','3-B','4-A','4-B','5-A','5-B'] },
+  { label: 'Middle (6–8)',             classes: ['6-A','6-B','7-A','7-B','8-A','8-B'] },
+  { label: 'Secondary (9–10)',         classes: ['9-A','9-B','10-A','10-B'] },
+  { label: 'Senior Secondary (11–12)', classes: ['11-A','11-B','12-A','12-B'] },
+];
+
 interface Exam {
   id: string;
   name: string;
@@ -27,7 +35,7 @@ interface ApiExam {
 
 const EMPTY_FORM = {
   name: '',
-  class: '10-A',
+  class: 'NC',
   subject: '',
   date: '',
   maxMarks: 100,
@@ -67,6 +75,7 @@ export default function ExamsPage() {
     D: 'danger',
     F: 'danger',
   };
+
   const fetchExams = async () => {
     setLoading(true);
     setError(null);
@@ -82,7 +91,9 @@ export default function ExamsPage() {
       setLoading(false);
     }
   };
+
   useEffect(() => { fetchExams(); }, []);
+
   const openAdd = () => {
     setForm({ ...EMPTY_FORM });
     setEditingId(null);
@@ -101,11 +112,13 @@ export default function ExamsPage() {
     setEditingId(exam.id);
     setModalMode('edit');
   };
+
   const closeModal = () => {
     setModalMode(null);
     setEditingId(null);
     setForm({ ...EMPTY_FORM });
   };
+
   const handleAdd = async () => {
     if (!form.name || !form.subject || !form.date) return;
     setSubmitting(true);
@@ -137,6 +150,7 @@ export default function ExamsPage() {
       setSubmitting(false);
     }
   };
+
   const handleUpdate = async () => {
     if (!editingId || !form.name || !form.subject || !form.date) return;
     setSubmitting(true);
@@ -170,7 +184,9 @@ export default function ExamsPage() {
       setSubmitting(false);
     }
   };
+
   const confirmDelete = (exam: Exam) => setDeleteTarget(exam);
+
   const handleDelete = async () => {
     if (!deleteTarget) return;
     setDeleting(true);
@@ -192,6 +208,7 @@ export default function ExamsPage() {
       setDeleting(false);
     }
   };
+
   const renderForm = () => (
     <div className="grid-2">
       <div className="form-group">
@@ -203,6 +220,7 @@ export default function ExamsPage() {
           onChange={(e) => setForm({ ...form, name: e.target.value })}
         />
       </div>
+
       <div className="form-group">
         <label className="form-label">Class</label>
         <select
@@ -210,11 +228,16 @@ export default function ExamsPage() {
           value={form.class}
           onChange={(e) => setForm({ ...form, class: e.target.value })}
         >
-          {['10-A', '10-B', '9-A', '9-B', '8-A', '8-B'].map((c) => (
-            <option key={c}>{c}</option>
+          {CLASS_GROUPS.map((group) => (
+            <optgroup key={group.label} label={group.label}>
+              {group.classes.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </optgroup>
           ))}
         </select>
       </div>
+
       <div className="form-group">
         <label className="form-label">Subject</label>
         <input
@@ -224,6 +247,7 @@ export default function ExamsPage() {
           onChange={(e) => setForm({ ...form, subject: e.target.value })}
         />
       </div>
+
       <div className="form-group">
         <label className="form-label">Date</label>
         <input
@@ -233,6 +257,7 @@ export default function ExamsPage() {
           onChange={(e) => setForm({ ...form, date: e.target.value })}
         />
       </div>
+
       <div className="form-group">
         <label className="form-label">Max Marks</label>
         <input
@@ -242,6 +267,7 @@ export default function ExamsPage() {
           onChange={(e) => setForm({ ...form, maxMarks: +e.target.value })}
         />
       </div>
+
       <div className="form-group">
         <label className="form-label">Status</label>
         <select
@@ -255,8 +281,11 @@ export default function ExamsPage() {
       </div>
     </div>
   );
+
   return (
     <AppLayout title="Exams & Results" subtitle="Schedule exams and manage student results">
+
+      {/* Tab switcher */}
       <div
         style={{
           display: 'flex',
@@ -289,6 +318,8 @@ export default function ExamsPage() {
           </button>
         ))}
       </div>
+
+      {/* Error banner */}
       {error && (
         <div
           style={{
@@ -313,6 +344,8 @@ export default function ExamsPage() {
           </button>
         </div>
       )}
+
+      {/* ── Exams Tab ── */}
       {tab === 'exams' && (
         <>
           <div className="toolbar">
@@ -384,7 +417,7 @@ export default function ExamsPage() {
                                 onClick={() => openEdit(e)}
                                 style={{ color: '#1e3a5f', borderColor: '#cbd5e1' }}
                               >
-                                <Pencil size={14}/>
+                                <Pencil size={14} />
                               </button>
                               <button
                                 className="btn btn-outline btn-sm btn-icon"
@@ -406,6 +439,8 @@ export default function ExamsPage() {
           </div>
         </>
       )}
+
+      {/* ── Results Tab ── */}
       {tab === 'results' && (
         <div className="card">
           <div className="table-wrap">
@@ -454,6 +489,8 @@ export default function ExamsPage() {
           </div>
         </div>
       )}
+
+      {/* ── Add / Edit Modal ── */}
       {modalMode && (
         <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && closeModal()}>
           <div className="modal">
@@ -481,6 +518,8 @@ export default function ExamsPage() {
           </div>
         </div>
       )}
+
+      {/* ── Delete Confirm Modal ── */}
       {deleteTarget && (
         <div
           className="modal-overlay"
@@ -535,18 +574,13 @@ export default function ExamsPage() {
                   fontFamily: 'Plus Jakarta Sans, sans-serif',
                 }}
               >
-                {deleting ? (
-                  'Deleting…'
-                ) : (
-                  <>
-                    <Trash2 size={14} /> Delete
-                  </>
-                )}
+                {deleting ? 'Deleting…' : <><Trash2 size={14} /> Delete</>}
               </button>
             </div>
           </div>
         </div>
       )}
+
     </AppLayout>
   );
 }
