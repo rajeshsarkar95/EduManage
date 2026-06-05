@@ -26,7 +26,7 @@ interface Class{
 }
 
 interface FeeRecord {
-  id: string
+  id:string
   _id: string
   student:string | {_id:string;name:string}
   class:string | {_id:string;name:string}
@@ -43,15 +43,15 @@ interface FeeRecord {
 }
 
 interface FeeForm {
-  student:        string
-  class:          string
-  session:        string
-  feeType:        string
-  totalAmount:    string
-  paidAmount:     string
-  discountAmount: string
-  fineAmount:     string
-  dueDate:        string
+  student:string
+  class:string
+  session:string
+  feeType:string
+  totalAmount:string
+  paidAmount:string
+  discountAmount:string
+  fineAmount:string
+  dueDate:string
 }
 
 const STATUS_COLOR:Record<FeeStatus,string>={
@@ -60,7 +60,7 @@ const STATUS_COLOR:Record<FeeStatus,string>={
   overdue:'danger',
 }
 
-const EMPTY_FORM:FeeForm ={
+const EMPTY_FORM:FeeForm = {
   student:'',
   class:'',
   session:new Date().getFullYear().toString(),
@@ -73,19 +73,19 @@ const EMPTY_FORM:FeeForm ={
 }
 
 const FEE_TYPES = ['tuition','exam','transport','hostel','library','sports','other']
-function studentName(f: FeeRecord): string {
+function studentName(f:FeeRecord):string{
   if (typeof f.student === 'object' && f.student !== null) return f.student.name ?? ''
   return (f.student as string) ?? ''
 }
-function className(f: FeeRecord):string {
+function className(f: FeeRecord):string{
   if (typeof f.class === 'object' && f.class !== null) return f.class.name ?? ''
   return (f.class as string) ?? ''
 }
-function studentId(f: FeeRecord): string {
+function studentId(f: FeeRecord):string{
   if (typeof f.student === 'object' && f.student !== null) return f.student._id ?? ''
   return (f.student as string) ?? ''
 }
-function classId(f: FeeRecord): string {
+function classId(f: FeeRecord):string{
   if (typeof f.class === 'object' && f.class !== null) return f.class._id ?? ''
   return (f.class as string) ?? ''
 }
@@ -102,7 +102,6 @@ function recordToForm(f:FeeRecord):FeeForm {
     dueDate:        f.dueDate ? f.dueDate.slice(0, 10) : '',
   }
 }
-
 async function apiFetch<T>(url:string,options?:RequestInit):Promise<T>{
   const res  = await fetch(url,options)
   const json = await res.json()
@@ -127,6 +126,7 @@ interface ModalHeaderProps {
   icon:string;title:string;subtitle:string
   onClose:()=> void;accentBg?:string
 }
+
 function ModalHeader({icon,title,subtitle,onClose,accentBg = '#e0e7ff'}: ModalHeaderProps){
   return (
     <>
@@ -138,11 +138,11 @@ function ModalHeader({icon,title,subtitle,onClose,accentBg = '#e0e7ff'}: ModalHe
           </div>
           <p style={{ fontSize: 12.5, color: '#64748b', margin: 0, paddingLeft: 2 }}>{subtitle}</p>
         </div>
-        <button onClick={onClose} style={{ background: '#f1f5f9', border: 'none', borderRadius: 8, padding: 6, cursor: 'pointer', display: 'flex', marginLeft: 12, flexShrink: 0 }}>
-          <X size={17} color="#64748b" />
+        <button onClick={onClose} style={{ background: '#f1f5f9', border: 'none', borderRadius: 8, padding: 6, cursor: 'pointer', display: 'flex', marginLeft: 12, flexShrink:0}}>
+          <X size={17} color="#64748b"/>
         </button>
       </div>
-      <div style={{ borderTop: '1px solid #f1f5f9', marginBottom: 20 }} />
+      <div style={{borderTop:'1px solid #f1f5f9',marginBottom:20}}/>
     </>
   )
 }
@@ -160,7 +160,7 @@ function ModalFooter({onCancel,onConfirm,confirmLabel,confirmIcon,confirmColor,l
         onClick={onConfirm} disabled={loading}
         style={{ flex: 1,display:'flex',alignItems:'center', justifyContent: 'center', gap: 6, padding: '9px 16px', borderRadius: 8, border: 'none', background: confirmColor, color: '#fff', fontWeight: 700, fontSize: 13.5, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}
       >
-        {loading ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : confirmIcon}
+        {loading ? <Loader2 size={14} style={{animation:'spin 1s linear infinite'}}/> : confirmIcon}
         {loading ? 'Please wait…' : confirmLabel}
       </button>
     </div>
@@ -182,7 +182,6 @@ export default function FeesPage() {
   const [formError, setFormError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-
   const fetchFees = useCallback(async () => {
     setLoading(true)
     setApiError('')
@@ -194,13 +193,12 @@ export default function FeesPage() {
           ?? (json.data as { docs?: FeeRecord[]; fees?: FeeRecord[] })?.fees
           ?? [])
       setFees(raw.map((f) => ({ ...f, id: f._id ?? f.id})))
-    } catch (err: unknown) {
+    } catch (err: unknown){
       setApiError(err instanceof Error ? err.message : 'Failed to load fee records.')
     } finally {
       setLoading(false)
     }
   }, [])
-
   function extractList<T>(json: unknown):T[]{
     if (Array.isArray(json)) return json as T[]
     if (json && typeof json === 'object'){
@@ -208,9 +206,9 @@ export default function FeesPage() {
       for (const key of ['data', 'students', 'classes', 'result', 'docs', 'items', 'records']) {
         const val = obj[key]
         if (Array.isArray(val)) return val as T[]
-        if (val && typeof val === 'object') {
+        if (val && typeof val === 'object'){
           const inner = val as Record<string, unknown>
-          for (const k of ['docs', 'data', 'items', 'records', 'students', 'classes']) {
+          for (const k of ['docs', 'data', 'items', 'records', 'students', 'classes']){
             if (Array.isArray(inner[k])) return inner[k] as T[]
           }
         }
@@ -218,8 +216,7 @@ export default function FeesPage() {
     }
     return []
   }
-
-  const fetchDropdownData = useCallback(async () => {
+  const fetchDropdownData = useCallback(async ()=>{
   setDropdownLoading(true)
   try {
     const [studentsRes, classesRes] = await Promise.allSettled([
@@ -245,7 +242,7 @@ export default function FeesPage() {
       setStudents(list)
     }
 
-    if (classesRes.status === 'fulfilled') {
+    if (classesRes.status === 'fulfilled'){
       const json = classesRes.value
       const list: Class[] =
         Array.isArray(json)             ? json          :
@@ -255,9 +252,8 @@ export default function FeesPage() {
         Array.isArray(json?.data?.docs) ? json.data.docs :
         Array.isArray(json?.docs)       ? json.docs     :
         []
-
-      console.log('[Fees] Classes parsed:', list.length, 'items')
-      if (list.length === 0) {
+      console.log('[Fees] Classes parsed:',list.length,'items')
+      if (list.length === 0){
         console.warn('[Fees] Could not parse classes from:', json)
       }
       setClasses(list)
@@ -267,7 +263,7 @@ export default function FeesPage() {
   }
 }, [])
 
-  useEffect(() => { fetchFees() }, [fetchFees])
+  useEffect(() => { fetchFees()},[fetchFees])
 
   const total     = fees.reduce((a, f) => a + f.totalAmount, 0)
   const collected = fees.reduce((a, f) => a + f.paidAmount,  0)
@@ -425,7 +421,7 @@ export default function FeesPage() {
             name="student"
             value={form.student}
             onChange={handleFormChange}
-            style={{ width: '100%' }}
+            style={{ width: '100%'}}
           >
             <option value="">— Select Student —</option>
             {students.map((s) => (
