@@ -7,7 +7,7 @@ const BASE   = 'https://edumanagebackend-1.onrender.com/api/v1'
 
 const FEES_API     = `${BASE}/fees`
 const STUDENTS_API = `${BASE}/students`
-const CLASSES_API  = `${BASE}/classes`       
+const CLASSES_API  = `${BASE}/classes`
 
 type FeeStatus = 'paid' | 'pending' | 'overdue';
 type ModalMode = 'add' | 'edit' | 'delete' | null;
@@ -73,22 +73,27 @@ const EMPTY_FORM:FeeForm = {
 }
 
 const FEE_TYPES = ['tuition','exam','transport','hostel','library','sports','other']
+
 function studentName(f:FeeRecord):string{
   if (typeof f.student === 'object' && f.student !== null) return f.student.name ?? ''
   return (f.student as string) ?? ''
 }
+
 function className(f: FeeRecord):string{
   if (typeof f.class === 'object' && f.class !== null) return f.class.name ?? ''
   return (f.class as string) ?? ''
 }
+
 function studentId(f: FeeRecord):string{
   if (typeof f.student === 'object' && f.student !== null) return f.student._id ?? ''
   return (f.student as string) ?? ''
 }
+
 function classId(f: FeeRecord):string{
   if (typeof f.class === 'object' && f.class !== null) return f.class._id ?? ''
   return (f.class as string) ?? ''
 }
+
 function recordToForm(f:FeeRecord):FeeForm {
   return {
     student:        studentId(f),
@@ -102,6 +107,7 @@ function recordToForm(f:FeeRecord):FeeForm {
     dueDate:        f.dueDate ? f.dueDate.slice(0, 10) : '',
   }
 }
+
 async function apiFetch<T>(url:string,options?:RequestInit):Promise<T>{
   const res  = await fetch(url,options)
   const json = await res.json()
@@ -166,8 +172,7 @@ function ModalFooter({onCancel,onConfirm,confirmLabel,confirmIcon,confirmColor,l
     </div>
   )
 }
-
-export default function FeesPage() {
+export default function FeesPage(){
   const [fees, setFees]         = useState<FeeRecord[]>([])
   const [students, setStudents] = useState<Student[]>([])
   const [classes, setClasses]   = useState<Class[]>([])
@@ -182,7 +187,7 @@ export default function FeesPage() {
   const [formError, setFormError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  const fetchFees = useCallback(async () => {
+  const fetchFees = useCallback(async ()=>{
     setLoading(true)
     setApiError('')
     try {
@@ -203,7 +208,7 @@ export default function FeesPage() {
     if (Array.isArray(json)) return json as T[]
     if (json && typeof json === 'object'){
       const obj = json as Record<string,unknown>
-      for (const key of ['data', 'students', 'classes', 'result', 'docs', 'items', 'records']) {
+      for (const key of ['data', 'students', 'classes', 'result', 'docs', 'items', 'records']){
         const val = obj[key]
         if (Array.isArray(val)) return val as T[]
         if (val && typeof val === 'object'){
@@ -235,13 +240,12 @@ export default function FeesPage() {
         Array.isArray(json?.docs)        ? json.docs      :  
         []
 
-      console.log('[Fees] Students parsed:', list.length, 'items')
+      console.log('[Fees] Students parsed:', list.length,'items')
       if (list.length === 0) {
-        console.warn('[Fees] Could not parse students from:', json)
+        console.warn('[Fees] Could not parse students from:',json)
       }
       setStudents(list)
     }
-
     if (classesRes.status === 'fulfilled'){
       const json = classesRes.value
       const list: Class[] =
@@ -254,7 +258,7 @@ export default function FeesPage() {
         []
       console.log('[Fees] Classes parsed:',list.length,'items')
       if (list.length === 0){
-        console.warn('[Fees] Could not parse classes from:', json)
+        console.warn('[Fees] Could not parse classes from:',json)
       }
       setClasses(list)
     }
@@ -395,7 +399,7 @@ export default function FeesPage() {
       } else {
         const json = await markRes.json()
         if (!markRes.ok) throw new Error(json.message || 'Failed to mark as paid.')
-        updated = { ...json.data, id: json.data._id }
+        updated = { ...json.data, id: json.data._id}
       }
       setFees((prev) => prev.map((f) => f._id === updated._id ? updated : f))
     } catch (err: unknown) {

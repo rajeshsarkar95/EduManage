@@ -7,11 +7,11 @@ import { Plus, X, Pencil, Trash2, AlertTriangle } from 'lucide-react';
 const API_BASE = 'https://edumanagebackend-1.onrender.com/api/v1';
 
 const CLASS_GROUPS = [
-  { label: 'Pre-Primary',              classes: ['NC', 'LKG', 'UKG'] },
-  { label: 'Primary (1–5)',            classes: ['1-A','1-B','2-A','2-B','3-A','3-B','4-A','4-B','5-A','5-B'] },
-  { label: 'Middle (6–8)',             classes: ['6-A','6-B','7-A','7-B','8-A','8-B'] },
-  { label: 'Secondary (9–10)',         classes: ['9-A','9-B','10-A','10-B'] },
-  { label: 'Senior Secondary (11–12)', classes: ['11-A','11-B','12-A','12-B'] },
+  { label: 'Pre-Primary',              classes: ['NC', 'LKG', 'UKG']},
+  { label: 'Primary (1–5)',            classes: ['1-A','1-B','2-A','2-B','3-A','3-B','4-A','4-B','5-A','5-B']},
+  { label: 'Middle (6–8)',             classes: ['6-A','6-B','7-A','7-B','8-A','8-B']},
+  { label: 'Secondary (9–10)',         classes: ['9-A','9-B','10-A','10-B']},
+  { label: 'Senior Secondary (11–12)', classes: ['11-A','11-B','12-A','12-B']},
 ];
 
 interface Exam {
@@ -48,6 +48,8 @@ function mapApiExam(e: ApiExam): Exam {
     name: e.name,
     class: e.class,
     subject: e.subject,
+
+
     date: e.examDate ? new Date(e.examDate).toISOString().split('T')[0] : '',
     maxMarks: e.totalMarks,
     status: e.status,
@@ -67,7 +69,7 @@ export default function ExamsPage() {
   const [deleteTarget, setDeleteTarget] = useState<Exam | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  const gradeColor: Record<string, string> = {
+  const gradeColor: Record<string, string>={
     'A+': 'success',
     A: 'success',
     B: 'info',
@@ -93,13 +95,11 @@ export default function ExamsPage() {
   };
 
   useEffect(() => { fetchExams(); }, []);
-
   const openAdd = () => {
     setForm({ ...EMPTY_FORM });
     setEditingId(null);
     setModalMode('add');
   };
-
   const openEdit = (exam: Exam) => {
     setForm({
       name: exam.name,
@@ -237,34 +237,31 @@ export default function ExamsPage() {
           ))}
         </select>
       </div>
-
       <div className="form-group">
         <label className="form-label">Subject</label>
         <input
           className="form-control"
           placeholder="e.g. Mathematics"
           value={form.subject}
-          onChange={(e) => setForm({ ...form, subject: e.target.value })}
+          onChange={(e) => setForm({...form, subject:e.target.value})}
         />
       </div>
-
       <div className="form-group">
         <label className="form-label">Date</label>
         <input
           className="form-control"
           type="date"
           value={form.date}
-          onChange={(e) => setForm({ ...form, date: e.target.value })}
+          onChange={(e) => setForm({...form,date:e.target.value})}
         />
       </div>
-
       <div className="form-group">
         <label className="form-label">Max Marks</label>
         <input
           className="form-control"
           type="number"
           value={form.maxMarks}
-          onChange={(e) => setForm({ ...form, maxMarks: +e.target.value })}
+          onChange={(e) => setForm({...form,maxMarks:+e.target.value})}
         />
       </div>
 
@@ -273,7 +270,7 @@ export default function ExamsPage() {
         <select
           className="form-control"
           value={form.status}
-          onChange={(e) => setForm({ ...form, status: e.target.value })}
+          onChange={(e) => setForm({...form, status:e.target.value})}
         >
           <option value="upcoming">Upcoming</option>
           <option value="completed">Completed</option>
@@ -284,16 +281,14 @@ export default function ExamsPage() {
 
   return (
     <AppLayout title="Exams & Results" subtitle="Schedule exams and manage student results">
-
-      {/* Tab switcher */}
       <div
         style={{
-          display: 'flex',
-          gap: 4,
-          background: '#f0f4f8',
-          borderRadius: 10,
-          padding: 4,
-          marginBottom: 20,
+          display:'flex',
+          gap:4,
+          background:'#f0f4f8',
+          borderRadius:10,
+          padding:4,
+          marginBottom:20,
           width: 'fit-content',
         }}
       >
