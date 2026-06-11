@@ -31,7 +31,7 @@ const PERIODS_FULL = [
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-const SUBJECT_COLORS: Record<string, string> = {
+const SUBJECT_COLORS: Record<string,string> = {
   'Prayer':              '#fef9c3',
   'Hindi':               '#fef3c7',
   'Hindi Writing Book':  '#fde68a',
@@ -72,7 +72,7 @@ const SUBJECT_COLORS: Record<string, string> = {
   '—':                   '#f8fafc',
 }
 
-type DaySchedule = Record<string, string[]>
+type DaySchedule = Record<string,string[]>
 
 const NC_TIMETABLE: DaySchedule = {
   Monday:    ['Prayer', 'Hindi NB',    'English NB', 'Math NB',      'Activity',        '—'],
@@ -142,7 +142,7 @@ const SECONDARY_TIMETABLE = (_section: string): DaySchedule => ({
   Saturday:  ['Prayer', 'Assembly', 'Math',     'Hindi',   'English',    'Lunch', 'Activities', '—'],
 })
 
-function resolveClass(cls: string): { timetable: DaySchedule; periods: string[] } {
+function resolveClass(cls: string): {timetable: DaySchedule; periods: string[]} {
   if (cls === 'NC')  return { timetable: NC_TIMETABLE,  periods: PERIODS_PRE }
   if (cls === 'LKG') return { timetable: LKG_TIMETABLE, periods: PERIODS_PRE }
   if (cls === 'UKG') return { timetable: UKG_TIMETABLE, periods: PERIODS_PRE }
@@ -178,30 +178,29 @@ export default function TimetablePage(){
             ))}
           </select>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display:'flex',alignItems:'center',gap:8}}>
           {isPrePrimary && (
-            <span className="badge badge-warning" style={{ fontSize: 12 }}>
+            <span className="badge badge-warning" style={{fontSize:12}}>
               🕗 8:30 AM – 12:30 PM
             </span>
           )}
           {!isPrePrimary && (
-            <span className="badge badge-info" style={{ fontSize: 12 }}>
+            <span className="badge badge-info" style={{fontSize:12}}>
               🕗 8:00 AM – 1:10 PM
             </span>
           )}
-          <span className="badge badge-info" style={{ fontSize: 12 }}>📅 Academic Year 2026-27</span>
+          <span className="badge badge-info" style={{ fontSize:12}}>📅 Academic Year 2026-27</span>
         </div>
       </div>
-
       {isPrePrimary && (
         <div style={{
-          background: 'linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%)',
-          borderRadius: 12, padding: '12px 20px', marginBottom: 16,
-          display: 'flex', alignItems: 'center', gap: 10,
+          background:'linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%)',
+          borderRadius:12,padding:'12px 20px',marginBottom:16,
+          display:'flex',alignItems:'center',gap:10,
         }}>
-          <span style={{ fontSize: 20 }}>🏫</span>
+          <span style={{fontSize:20}}>🏫</span>
           <div>
-            <div style={{ color: '#fff', fontWeight: 700, fontSize: 15 }}>
+            <div style={{ color: '#fff',fontWeight:700,fontSize:15}}>
               A.R. Public School Bhikaripur — {cls} Weekly Timetable
             </div>
             <div style={{ color: '#93c5fd', fontSize: 12 }}>
