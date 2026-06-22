@@ -1,16 +1,16 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react';
+import {useState,useEffect,useCallback} from 'react';
 import AppLayout from '@/components/layout/AppLayout';
-import { COLORS } from '@/lib/data';
-import { Plus, Search, Edit, Trash2, Eye, X, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import {COLORS} from '@/lib/data';
+import {Plus,Search,Edit,Trash2,Eye,X,Loader2,AlertCircle,RefreshCw} from 'lucide-react';
 
 const isObjectId = (v: string) => /^[a-f\d]{24}$/i.test(v);
 
 type Address = {
-  street: string
-  city: string
-  state: string
-  pincode: string
+  street:string
+  city:string
+  state:string
+  pincode:string
 }
 type Guardian = {
   name: string
@@ -21,37 +21,37 @@ type Guardian = {
   annualIncome: number
 }
 type PopulatedClass = {
-  _id: string
-  name: string
-  section?: string
+  _id:string
+  name:string
+  section?:string
 }
 type Student = {
-  _id: string
-  studentNumber: string
-  name: string
-  rollNumber: string
-  admissionNumber: string
-  dateOfBirth: string
-  gender: string
-  photo: string | null
-  bloodGroup: string
-  religion: string
-  category: string
-  address: Address | null
-  phone: string
-  guardian: Guardian
-  class: string | PopulatedClass | null
-  section: string
-  session: string
-  feeStatus: 'paid' | 'pending' | 'overdue'
-  status: 'active' | 'inactive' | 'transferred' | 'graduated'
-  previousSchool: string
-  notes: string
-  isDeleted: boolean
+  _id:string
+  studentNumber:string
+  name:string
+  rollNumber:string
+  admissionNumber:string
+  dateOfBirth:string
+  gender:string
+  photo:string | null
+  bloodGroup:string
+  religion:string
+  category:string
+  address:Address | null
+  phone:string
+  guardian:Guardian
+  class:string | PopulatedClass | null
+  section:string
+  session:string
+  feeStatus:'paid' | 'pending' | 'overdue'
+  status:'active' | 'inactive' | 'transferred' | 'graduated'
+  previousSchool:string
+  notes:string
+  isDeleted:boolean
   admissionDate: string
-  age?: number
-  createdAt: string
-  updatedAt: string
+  age?:number
+  createdAt:string
+  updatedAt:string
 }
 type ApiResponse = {
   success: boolean
@@ -61,98 +61,93 @@ type ApiResponse = {
   pages: number
   data: Student[]
 }
-type ClassOption = {
-  _id: string
-  name: string
+
+type ClassOption ={
+  _id:string
+  name:string
 }
 
 const BASE_URL = 'https://edumanagebackend-1.onrender.com/api/v1/students';
 const CLASSES_URL = 'https://edumanagebackend-1.onrender.com/api/v1/classes';
-const SECTION_OPTIONS = ['A', 'B', 'C', 'D'];
-const CATEGORY_OPTIONS = ['General', 'OBC', 'SC', 'ST', 'EWS'];
-const SESSION_OPTIONS = ['2024-25', '2025-26', '2026-27'];
-const BLOOD_GROUP_OPTIONS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
-const GUARDIAN_RELATION_OPTIONS = ['Father', 'Mother', 'Guardian'];
-const STATUS_OPTIONS = ['active', 'inactive', 'transferred', 'graduated'] as const;
 
-const EMPTY_ADDRESS: Address = { street: '', city: '', state: '', pincode: '' };
-const EMPTY_GUARDIAN: Guardian = {
-  name: '', relation: 'Father', phone: '', email: '', occupation: '', annualIncome: 0
-};
+const SECTION_OPTIONS = ['A','B','C','D'];
+const CATEGORY_OPTIONS = ['General','OBC','SC','ST','EWS'];
+const SESSION_OPTIONS = ['2024-25','2025-26','2026-27'];
+const BLOOD_GROUP_OPTIONS = ['A+','A-','B+','B-','AB+','AB-','O+','O-'];
+const GUARDIAN_RELATION_OPTIONS = ['Father','Mother','Guardian'];
+const STATUS_OPTIONS = ['active','inactive','transferred','graduated'] as const;
+const EMPTY_ADDRESS:Address = {street:'',city:'',state:'',pincode:''}
+
+const EMPTY_GUARDIAN:Guardian = {
+  name:'',relation:'Father',phone:'',email:'',occupation:'',annualIncome:0};
 
 const initForm = {
-  studentNumber: '',
-  name: '',
-  rollNumber: '',
-  admissionNumber: '',
+  studentNumber:'',
+  name:'',
+  rollNumber:'',
+  admissionNumber:'',
   class: '',
   section: 'A',
-  dateOfBirth: '',
-  gender: 'Male',
-  phone: '',
-  bloodGroup: '',
-  religion: '',
-  category: 'General',
-  session: '2024-25',
-  feeStatus: 'pending' as 'paid' | 'pending' | 'overdue',
-  status: 'active' as 'active' | 'inactive' | 'transferred' | 'graduated',
-  previousSchool: '',
-  notes: '',
-  address: EMPTY_ADDRESS,
-  guardian: EMPTY_GUARDIAN,
+  dateOfBirth:'',
+  gender:'Male',
+  phone:'',
+  bloodGroup:'',
+  religion:'',
+  category:'General',
+  session:'2024-25',
+  feeStatus:'pending' as 'paid' | 'pending' | 'overdue',
+  status:'active' as 'active' | 'inactive' | 'transferred' | 'graduated',
+  previousSchool:'',
+  notes:'',
+  address:EMPTY_ADDRESS,
+  guardian:EMPTY_GUARDIAN,
 }
 
 type FormState = typeof initForm
 
-const feeColor = (f: string) =>
+const feeColor = (f:string)=>
   f === 'paid' ? 'success' : f === 'overdue' ? 'danger' : 'warning'
-
-const statusColor = (s: string) =>
+const statusColor = (s:string) =>
   s === 'active' ? 'success' : s === 'graduated' ? 'info' : s === 'transferred' ? 'warning' : 'danger'
-
-const formatDate = (iso: string) => {
+const formatDate = (iso:string) =>{
   if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+  return new Date(iso).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
 }
-
-const classLabel = (classVal: string | PopulatedClass | null, classes: ClassOption[]): string => {
+const classLabel = (classVal:string | PopulatedClass | null, classes: ClassOption[]):string =>{
   if (!classVal) return '—'
   if (typeof classVal === 'object') return classVal.name
   return classes.find(c => c._id === classVal)?.name ?? classVal
 }
-
-const classId = (classVal: string | PopulatedClass | null): string => {
+const classId = (classVal:string | PopulatedClass | null): string =>{
   if (!classVal) return ''
   if (typeof classVal === 'object') return classVal._id
   return classVal
 }
-
-const toPayload = (form: FormState) => ({
+const toPayload = (form: FormState)=>({
   studentNumber: form.studentNumber || undefined,
   name: form.name,
   rollNumber: form.rollNumber,
   admissionNumber: form.admissionNumber || undefined,
-  ...(isObjectId(form.class) ? { class: form.class } : {}),
-  section: form.section,
-  dateOfBirth: form.dateOfBirth || undefined,
-  gender: form.gender,
-  phone: form.phone || undefined,
-  bloodGroup: form.bloodGroup || undefined,
-  religion: form.religion || undefined,
-  category: form.category,
-  session: form.session,
-  feeStatus: form.feeStatus,
-  status: form.status,
+  ...(isObjectId(form.class) ? {class:form.class} : {}),
+  section:form.section,
+  dateOfBirth:form.dateOfBirth || undefined,
+  gender:form.gender,
+  phone:form.phone || undefined,
+  bloodGroup:form.bloodGroup || undefined,
+  religion:form.religion || undefined,
+  category:form.category,
+  session:form.session,
+  feeStatus:form.feeStatus,
+  status:form.status,
   previousSchool: form.previousSchool || undefined,
-  notes: form.notes || undefined,
-  address: form.address,
-  guardian: {
+  notes:form.notes || undefined,
+  address:form.address,
+  guardian:{
     ...form.guardian,
     annualIncome: Number(form.guardian.annualIncome),
   },
 })
-
-const toForm = (s: Student): FormState => ({
+const toForm = (s:Student):FormState =>({
   studentNumber: s.studentNumber ?? '',
   name: s.name ?? '',
   rollNumber: s.rollNumber ?? '',
@@ -171,22 +166,19 @@ const toForm = (s: Student): FormState => ({
   previousSchool: s.previousSchool ?? '',
   notes: s.notes ?? '',
   address: s.address ?? EMPTY_ADDRESS,
-  guardian: {
-    ...EMPTY_GUARDIAN,
-    ...(s.guardian ?? {}),
+  guardian:{
+  ...EMPTY_GUARDIAN,
+  ...(s.guardian ?? {}),
     annualIncome: s.guardian?.annualIncome ?? 0,
   },
 });
-
-// ── Label helper ──────────────────────────────────────────────
-const InfoCard = ({ label, value }: { label: string; value: string | number | undefined | null }) => (
-  <div style={{ background: '#f8fafc', borderRadius: 8, padding: '10px 14px' }}>
-    <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, marginBottom: 2 }}>{label}</div>
-    <div style={{ fontSize: 13.5, fontWeight: 600 }}>{value || '—'}</div>
+const InfoCard = ({label,value}:{label: string; value: string | number | undefined | null })=>(
+  <div style={{background:'#f8fafc',borderRadius:8,padding:'10px 14px'}}>
+    <div style={{fontSize:11, color: '#94a3b8', fontWeight: 600,marginBottom:2}}>{label}</div>
+    <div style={{fontSize:13.5, fontWeight: 600 }}>{value || '—'}</div>
   </div>
 )
-
-export default function StudentsPage() {
+export default function StudentsPage(){
   const [students, setStudents] = useState<Student[]>([]);
   const [classes, setClasses] = useState<ClassOption[]>([]);
   const [loading, setLoading] = useState(true);
@@ -200,7 +192,7 @@ export default function StudentsPage() {
   const [selected, setSelected] = useState<Student | null>(null);
   const [form, setForm] = useState<FormState>(initForm);
 
-  const fetchStudents = useCallback(async () => {
+  const fetchStudents = useCallback(async ()=>{
     setLoading(true);
     setError(null);
     setClassesError(false);
@@ -212,8 +204,7 @@ export default function StudentsPage() {
       if (!studRes.ok) throw new Error(`Server error: ${studRes.status}`);
       const studJson: ApiResponse = await studRes.json();
       setStudents(studJson.data ?? []);
-
-      if (classRes?.ok) {
+      if (classRes?.ok){
         const classJson = await classRes.json();
         const list: ClassOption[] = Array.isArray(classJson) ? classJson : (classJson.data ?? []);
         const validClasses = list.filter((item: any) => item._id && item.name && !item.rollNumber);
@@ -222,37 +213,37 @@ export default function StudentsPage() {
       } else {
         setClassesError(true);
       }
-    } catch (err: unknown) {
+    } catch (err:unknown){
       setError(err instanceof Error ? err.message : 'Failed to fetch students')
     } finally {
       setLoading(false)
     }
-  }, [])
+  },[])
 
-  useEffect(() => { fetchStudents() }, [fetchStudents])
+  useEffect(() => { fetchStudents() },[fetchStudents])
 
-  const handleSave = async () => {
-    if (!form.name.trim() || !form.rollNumber.trim()) {
+  const handleSave = async () =>{
+    if (!form.name.trim() || !form.rollNumber.trim()){
       alert('Name and Roll Number are required.'); return;
     }
-    if (!form.guardian.name.trim() || !form.guardian.phone.trim()) {
+    if (!form.guardian.name.trim() || !form.guardian.phone.trim()){
       alert('Guardian name and phone are required.'); return;
     }
     setSaving(true)
     try {
-      if (modal === 'add') {
-        const res = await fetch(BASE_URL, {
+      if (modal === 'add'){
+        const res = await fetch(BASE_URL,{
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type':'application/json'},
           body: JSON.stringify(toPayload(form)),
         })
         if (!res.ok) { const e = await res.json(); throw new Error(e.message ?? `Server error: ${res.status}`) }
         const json = await res.json()
         setStudents(prev => [...prev, json.data ?? json])
-      } else if (modal === 'edit' && selected) {
-        const res = await fetch(`${BASE_URL}/${selected._id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+      } else if (modal === 'edit' && selected){
+        const res = await fetch(`${BASE_URL}/${selected._id}`,{
+          method:'PUT',
+          headers:{'Content-Type': 'application/json'},
           body: JSON.stringify(toPayload(form)),
         })
         if (!res.ok) { const e = await res.json(); throw new Error(e.message ?? `Server error: ${res.status}`) }
@@ -261,14 +252,13 @@ export default function StudentsPage() {
         setStudents(prev => prev.map(s => s._id === selected._id ? updated : s))
       }
       setModal(null)
-    } catch (err: unknown) {
+    } catch (err: unknown){
       alert(err instanceof Error ? err.message : 'Save failed');
     } finally {
       setSaving(false)
     }
   }
-
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string)=>{
     if (!confirm('Delete this student?')) return;
     try {
       const res = await fetch(`${BASE_URL}/${id}`, { method: 'DELETE' });
@@ -278,8 +268,7 @@ export default function StudentsPage() {
       alert(err instanceof Error ? err.message : 'Delete failed');
     }
   }
-
-  const filtered = students.filter(s => {
+  const filtered = students.filter(s=>{
     const q = search.toLowerCase()
     const matchSearch =
       s.name.toLowerCase().includes(q) ||
@@ -291,7 +280,7 @@ export default function StudentsPage() {
     return matchSearch && matchFee && matchStatus
   })
 
-  const openAdd = () => { setForm(initForm); setModal('add') }
+  const openAdd = () => { setForm(initForm); setModal('add')}
   const openEdit = (s: Student) => { setSelected(s); setForm(toForm(s)); setModal('edit') }
   const openView = (s: Student) => { setSelected(s); setModal('view') }
 
@@ -308,8 +297,6 @@ export default function StudentsPage() {
 
   return (
     <AppLayout title="Students" subtitle="Manage all student records">
-
-      {/* ── Summary Cards ── */}
       <div style={{ display: 'flex', gap: 14, marginBottom: 24, flexWrap: 'wrap' }}>
         {[
           { label: 'Total', value: students.length, color: '#1e3a5f', bg: '#e0e7ff' },
@@ -325,8 +312,6 @@ export default function StudentsPage() {
           </div>
         ))}
       </div>
-
-      {/* ── Toolbar ── */}
       <div className="toolbar">
         <div className="search-bar">
           <Search size={16} className="search-icon" />
@@ -352,8 +337,6 @@ export default function StudentsPage() {
         </button>
         <button className="btn btn-primary" onClick={openAdd}><Plus size={16} />Add Student</button>
       </div>
-
-      {/* ── Error Banner ── */}
       {error && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 8, padding: '10px 16px', marginBottom: 16, color: '#dc2626', fontSize: 13 }}>
           <AlertCircle size={16} />
@@ -361,8 +344,6 @@ export default function StudentsPage() {
           <button className="btn btn-outline btn-sm" style={{ marginLeft: 'auto' }} onClick={fetchStudents}>Retry</button>
         </div>
       )}
-
-      {/* ── Table ── */}
       <div className="card">
         {loading ? (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '60px 0', color: '#94a3b8' }}>
@@ -377,7 +358,7 @@ export default function StudentsPage() {
                   <th>#</th>
                   <th>Student</th>
                   <th>Stu No</th>
-                  <th>Roll No</th>
+                  {/* <th>Roll No</th> */}
                   <th>Adm No</th>
                   <th>Class</th>
                   <th>Guardian</th>
@@ -453,8 +434,6 @@ export default function StudentsPage() {
           </div>
         )}
       </div>
-
-      {/* ── Add / Edit Modal ── */}
       {(modal === 'add' || modal === 'edit') && (
         <div className="modal-overlay" onClick={e => e.target === e.currentTarget && setModal(null)}>
           <div className="modal" style={{ maxWidth: 700 }}>
@@ -647,8 +626,6 @@ export default function StudentsPage() {
           </div>
         </div>
       )}
-
-      {/* ── View Modal ── */}
       {modal === 'view' && selected && (
         <div className="modal-overlay" onClick={e => e.target === e.currentTarget && setModal(null)}>
           <div className="modal" style={{ maxWidth: 600 }}>
@@ -673,7 +650,6 @@ export default function StudentsPage() {
                   <span className={`badge badge-${feeColor(selected.feeStatus)}`}>{selected.feeStatus}</span>
                 </div>
               </div>
-
               <p style={{ fontWeight: 700, fontSize: 11, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Identity Numbers</p>
               <div className="grid-2" style={{ gap: 10, marginBottom: 16 }}>
                 <InfoCard label="Student No" value={selected.studentNumber} />
@@ -693,7 +669,6 @@ export default function StudentsPage() {
                 <InfoCard label="Admission Date" value={formatDate(selected.admissionDate)} />
                 <InfoCard label="Previous School" value={selected.previousSchool} />
               </div>
-
               {selected.address && Object.values(selected.address).some(Boolean) && (
                 <>
                   <p style={{ fontWeight: 700, fontSize: 11, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Address</p>
@@ -702,7 +677,6 @@ export default function StudentsPage() {
                   </div>
                 </>
               )}
-
               {selected.guardian && (
                 <>
                   <p style={{ fontWeight: 700, fontSize: 11, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Guardian</p>
@@ -719,7 +693,6 @@ export default function StudentsPage() {
                   </div>
                 </>
               )}
-
               {selected.notes && (
                 <>
                   <p style={{ fontWeight: 700, fontSize: 11, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Notes</p>
@@ -728,7 +701,6 @@ export default function StudentsPage() {
                   </div>
                 </>
               )}
-
             </div>
             <div className="modal-footer">
               <button className="btn btn-outline" onClick={() => setModal(null)}>Close</button>
@@ -737,7 +709,6 @@ export default function StudentsPage() {
           </div>
         </div>
       )}
-
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </AppLayout>
   )
